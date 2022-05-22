@@ -8,4 +8,6 @@ import lombok.Getter;
 @Builder
 @AllArgsConstructor
 public class ReturnBookRequestDto {
+
+    private Long bookId;
 }
