@@ -1,1 +1,4 @@
 rootProject.name = 'order'
+include 'ssu-app-order'
+include 'ssu-domain-order'
+

@@ -1,0 +1,41 @@
+
+dependencies {
+    implementation 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+    testCompileOnly 'org.projectlombok:lombok:1.18.24'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.24'
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+//var DEFAULT_USER_NAME = System.getenv("USERNAME")
+//var DEFAULT_TOKEN = System.getenv("TOKEN")
+//
+//if (!project.findProperty("gpr.user")) {
+//    gpr.user = DEFAULT_USER_NAME
+//}
+//
+//if (!project.findProperty("gpr.key")) {
+//    gpr.user = DEFAULT_TOKEN
+//}
+
+
+sourceSets {
+    main {
+        resources {
+            srcDir "src/main/resources"
+            srcDir "src/main/resources-env"
+        }
+    }
+}
+
+repositories {
+    mavenCentral()
+}
