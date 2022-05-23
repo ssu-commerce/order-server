@@ -9,7 +9,7 @@ import org.springframework.vault.annotation.VaultPropertySources;
 @Profile("!test")
 @Configuration
 @VaultPropertySources({
-        @VaultPropertySource(value = "ssu-commerce-order/${spring.profiles.active:local}", propertyNamePrefix = "ssu-commerce-order."),
+        @VaultPropertySource(value = "ssu-commerce-order/${spring.profiles.active:dev}", propertyNamePrefix = "ssu-commerce-order."),
         @VaultPropertySource(value = "ssu-commerce-order/dev", propertyNamePrefix = "ssu-commerce-order.")
 })
 public class DataSourceProperties {
