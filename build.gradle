@@ -21,7 +21,7 @@ repositories {
 }
 
 ext {
-	coreVersion="beta-2022.05.24"
+	coreVersion="beta-2022.05.29"
 }
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
