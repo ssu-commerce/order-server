@@ -10,11 +10,37 @@ sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
+	maven {
+		name = "GitHubPackages"
+		url = uri("https://maven.pkg.github.com/ssu-commerce/ssu-commerce-core")
+		credentials {
+			username = project.findProperty("gpr.user") == null ? System.getenv("USERNAME") : project.findProperty("gpr.user")
+			password = project.findProperty("gpr.key") == null ? System.getenv("TOKEN") : project.findProperty("gpr.key")
+		}
+	}
 }
 
+ext {
+	coreVersion="beta-2022.05.29"
+}
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	/*
+	 * Test
+	 */
+	testCompileOnly 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	/*
+	 * ssu commerce
+	 */
+	implementation("com.ssu.commerce:ssu-commerce-core:$coreVersion")
 }
 
 tasks.named('test') {
