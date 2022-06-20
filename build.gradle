@@ -23,6 +23,13 @@ repositories {
 ext {
 	coreVersion="beta-2022.05.29"
 }
+
+dependencyManagement {
+	imports {
+		mavenBom 'org.springframework.cloud:spring-cloud-dependencies:Greenwich.RELEASE'
+	}
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	compileOnly 'org.projectlombok:lombok'
@@ -41,6 +48,11 @@ dependencies {
 	 * ssu commerce
 	 */
 	implementation("com.ssu.commerce:ssu-commerce-core:$coreVersion")
+
+	/*
+	 * Spring Cloud
+	 */
+	compileOnly("org.springframework.cloud:spring-cloud-starter-openfeign")
 }
 
 tasks.named('test') {
