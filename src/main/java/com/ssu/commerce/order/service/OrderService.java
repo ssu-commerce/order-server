@@ -33,6 +33,7 @@ public class OrderService {
          */
 
         // TODO return 주문 정보 (to front)
+        //  transactionId : ORDER-1
     }
 
     // TODO (front -> order_confirmOrder)
