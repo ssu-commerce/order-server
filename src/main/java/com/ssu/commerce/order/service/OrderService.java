@@ -1,5 +1,6 @@
 package com.ssu.commerce.order.service;
 
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.dto.response.ReturnBookResponseDto;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +12,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrderService {
 
-    public void createOrder() {
+    public void createOrder(
+            CreateOrderRequestDto requestDto
+    ) {
+
+        // 1. 도서 조회 API call (request - bookId)
+
+
         /*
          * TODO 구현이 필요합니다.
          *  1. 도서 조회 API call (성엽)
