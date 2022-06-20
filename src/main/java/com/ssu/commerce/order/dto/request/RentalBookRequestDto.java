@@ -10,4 +10,5 @@ import lombok.Getter;
 public class RentalBookRequestDto {
 
     private Long bookId;
+    private String orderLocation; // 도서 배송 위치
 }
