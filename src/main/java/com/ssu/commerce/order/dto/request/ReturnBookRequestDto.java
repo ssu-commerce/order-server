@@ -9,5 +9,5 @@ import lombok.Getter;
 @AllArgsConstructor
 public class ReturnBookRequestDto {
 
-    private Long bookId;
+    private String orderItemId;
 }
