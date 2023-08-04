@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '2.6.7'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 	id 'java'
 }
 
@@ -21,7 +22,9 @@ repositories {
 }
 
 ext {
-	coreVersion="beta-2022.05.29"
+	coreVersion="2023.07.4"
+	mapstructVersion = '1.5.5.Final'
+	queryDSLVersion = '5.0.0'
 }
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -41,6 +44,36 @@ dependencies {
 	 * ssu commerce
 	 */
 	implementation("com.ssu.commerce:ssu-commerce-core:$coreVersion")
+
+	// mapstruct
+	implementation group: 'org.mapstruct', name: 'mapstruct', version: "${mapstructVersion}"
+	compileOnly group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
+
+	// Querydsl
+	implementation("com.querydsl:querydsl-jpa:${queryDSLVersion}")
+	implementation "com.querydsl:querydsl-apt:${queryDSLVersion}"
+	implementation "com.querydsl:querydsl-core:${queryDSLVersion}"
+
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+	main.java.srcDir querydslDir
+}
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
 }
 
 tasks.named('test') {
