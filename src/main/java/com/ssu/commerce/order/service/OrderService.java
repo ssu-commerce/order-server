@@ -147,4 +147,81 @@ public class OrderService {
         return order;
     }
 
+    @Transactional
+    public String approveRental(String id) {
+        OrderItem orderItem = orderItemRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException(
+                        String.format("order not found; orderId=%s", id),
+                        "ORDER_ITEM_001"
+                ));
+
+        orderItem.setOrderState(OrderState.APPROVED);
+        orderItemRepository.save(orderItem);
+
+        /*
+            TODO 배송 관련 처리
+         */
+
+        return orderItem.getId();
+    }
+
+    public String rejectRental(String id) {
+        OrderItem orderItem = orderItemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("order not found; orderId=%s", id),
+                        "ORDER_ITEM_001"
+                ));
+
+        orderItem.setOrderState(OrderState.REJECTED);
+        orderItemRepository.save(orderItem);
+
+        return orderItem.getId();
+    }
+
+    public String addBookToCart(
+            @NonNull @Valid RegisterBookToCartParamDto paramDto,
+            String userId
+    ) {
+        return orderCartRepository.save(
+                OrderCart.builder()
+                        .userId(userId)
+                        .bookId(paramDto.getBookId())
+                        .addedAt(LocalDateTime.now())
+                        .build()
+        ).getUserId();
+    }
+
+    public String deleteBookFromCart(String id) {
+        OrderCart orderCart = orderCartRepository.findByUserId(id)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format("orderCart not found; cartId=%s", id),
+                        "ORDER_CART_001"
+                ));
+        orderCartRepository.delete(orderCart);
+        return orderCart.getUserId();
+    }
+
+    public Page<OrderCartDto> getCartItemList(
+            @NonNull final GetOrderCartListParamDto paramDto
+    ) {
+
+        return new PageImpl<>(
+                OrderCartDtoMapper.INSTANCE.mapToList(
+                        orderCartRepository.selectOrderCartPage(
+                                SelectOrderCartListParamDtoMapper.INSTANCE.map(paramDto),
+                                paramDto.getPageable()
+                        ).getContent()
+                )
+        );
+    }
+
+    public Page<GetOrderResponseDto> getOrderList(GetOrderListParamDto paramDto) {
+
+        return GetOrderResponseDtoMapper.INSTANCE.mapToList(
+                orderRepository.selectOrderPage(
+                        SelectOrderListParamDtoMapper.INSTANCE.map(paramDto),
+                        paramDto.getPageable()
+                )
+        );
+    }
 }

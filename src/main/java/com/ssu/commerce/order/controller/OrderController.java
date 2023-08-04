@@ -71,5 +71,74 @@ public class OrderController {
         );
     }
 
+    @PostMapping("/approve/{id}")
+    public ApproveRentalResponseDto approveRental (
+            @PathVariable final String id
+    ) {
+        log.debug("[approveRental]id={}", id);
+
+        return ApproveRentalResponseDto.builder()
+                .id(
+                        orderService.approveRental(id)
+                )
+                .build();
+    }
+
+    @PostMapping("/reject/{id}")
+    public RejectRentalResponseDto rejectRental (
+            @PathVariable final String id
+    ) {
+        log.debug("[rejectRental]id={}", id);
+
+        return RejectRentalResponseDto.builder()
+                .id(
+                        orderService.rejectRental(id)
+                )
+                .build();
+    }
+
+
+    @GetMapping("/cart")
+    public List<OrderCartResponseDto> getBookListFromCart(
+            @Authenticated AuthInfo authInfo,
+            Pageable pageable
+    ) {
+        log.debug("getBookListFromCart]authInfo={}", authInfo);
+
+        return OrderCartResponseDtoMapper.INSTANCE.mapToList(
+                orderService.getCartItemList(
+                        GetOrderCartListParamMapper.INSTANCE.map(authInfo.getUserId(), pageable)
+                ).getContent()
+        );
+    }
+
+    @PostMapping("/cart")
+    public AddBookToCartResponseDto registerBookToCart(
+            @Valid @RequestBody final RegisterBookToCartRequestDto requestDto,
+            @Authenticated AuthInfo authInfo
+    ) {
+        log.debug("[addBookToCart]requestDto={}", requestDto);
+
+        return AddBookToCartResponseDto.builder()
+                .id(
+                        orderService.addBookToCart(
+                                RegisterBookToCartParamDtoMapper.INSTANCE.map(requestDto),
+                                authInfo.getUserId()
+                        )
+                )
+                .build();
+    }
+
+    @DeleteMapping("/cart/{bookId}")
+    public DeleteBookFromCartResponseDto deleteBookFromCart(
+            @PathVariable final String bookId
+    ) {
+        log.debug("[deleteBookFromCart]bookId={}", bookId);
+
+        return DeleteBookFromCartResponseDto.builder()
+                .id(
+                        orderService.deleteBookFromCart(bookId)
+                )
+                .build();
     }
 }
