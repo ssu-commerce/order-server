@@ -48,6 +48,7 @@ dependencies {
 	// mapstruct
 	implementation group: 'org.mapstruct', name: 'mapstruct', version: "${mapstructVersion}"
 	compileOnly group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
+	annotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
 
 	// Querydsl
 	implementation("com.querydsl:querydsl-jpa:${queryDSLVersion}")

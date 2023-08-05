@@ -8,11 +8,10 @@ import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.dto.response.GetOrderResponseDto;
-import com.ssu.commerce.order.dto.response.OrderCartResponseDto;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderItem;
-import com.ssu.commerce.order.persistence.OrderCartDtoMapper;
+import com.ssu.commerce.order.dto.mapper.OrderCartDtoMapper;
 import com.ssu.commerce.order.persistence.OrderCartRepository;
 import com.ssu.commerce.order.persistence.OrderItemRepository;
 import com.ssu.commerce.order.persistence.OrderRepository;
@@ -93,6 +92,7 @@ public class OrderService {
 //        return RentalBookResponseDto.builder().build();
 //    }
 
+    @Transactional
     public OrderItem returnBook(
             ReturnBookRequestDto responseDto
     ) {
@@ -132,15 +132,9 @@ public class OrderService {
                         .build()
         );
 
-        requestDto.getRentalBookRequestDtoList().forEach((item) ->
-                orderItemRepository.save(
-                        OrderItem.builder()
-                                .orderId(UUID.randomUUID().toString())
-                                .bookId(item.getBookId())
-                                .startedAt(item.getStartedAt())
-                                .endAt(item.getEndAt())
-                                .orderState(OrderState.REGISTERED)
-                                .build()
+        orderItemRepository.saveAll(
+                OrderItemListMapper.INSTANCE.mapToList(
+                        requestDto
                 )
         );
 
@@ -165,6 +159,7 @@ public class OrderService {
         return orderItem.getId();
     }
 
+    @Transactional
     public String rejectRental(String id) {
         OrderItem orderItem = orderItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -178,12 +173,14 @@ public class OrderService {
         return orderItem.getId();
     }
 
+    @Transactional
     public String addBookToCart(
             @NonNull @Valid RegisterBookToCartParamDto paramDto,
             String userId
     ) {
         return orderCartRepository.save(
                 OrderCart.builder()
+                        .id(UUID.randomUUID().toString())
                         .userId(userId)
                         .bookId(paramDto.getBookId())
                         .addedAt(LocalDateTime.now())
@@ -191,6 +188,7 @@ public class OrderService {
         ).getUserId();
     }
 
+    @Transactional
     public String deleteBookFromCart(String id) {
         OrderCart orderCart = orderCartRepository.findByUserId(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -217,11 +215,9 @@ public class OrderService {
 
     public Page<GetOrderResponseDto> getOrderList(GetOrderListParamDto paramDto) {
 
-        return GetOrderResponseDtoMapper.INSTANCE.mapToList(
-                orderRepository.selectOrderPage(
-                        SelectOrderListParamDtoMapper.INSTANCE.map(paramDto),
-                        paramDto.getPageable()
-                )
-        );
+        return orderRepository.selectOrderPage(
+                SelectOrderListParamDtoMapper.INSTANCE.map(paramDto),
+                paramDto.getPageable()
+        ).map(GetOrderResponseDtoMapper.INSTANCE::map);
     }
 }

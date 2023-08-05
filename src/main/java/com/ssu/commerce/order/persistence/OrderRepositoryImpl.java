@@ -29,7 +29,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
     @Override
     public Page<OrderWithItemsDto> selectOrderPage(
-            @NonNull SelectOrderListParamDto paramDto,
+            @NonNull final SelectOrderListParamDto paramDto,
             @NonNull Pageable pageable
     ) {
         final JPAQuery<OrderWithItemsDto> jpaQuery = jpaQueryFactory.select(Projections.fields(OrderWithItemsDto.class, order,orderItem))

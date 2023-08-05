@@ -8,7 +8,6 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Mapper(
         componentModel = "spring",
@@ -19,11 +18,7 @@ import java.util.stream.Collectors;
 public interface OrderCartResponseDtoMapper {
     OrderCartResponseDtoMapper INSTANCE = Mappers.getMapper(OrderCartResponseDtoMapper.class);
     
-    default List<OrderCartResponseDto> mapToList(List<OrderCartDto> orderCartDtoList) {
-        return orderCartDtoList.stream()
-                .map(this::map)
-                .collect(Collectors.toList());
-    }
+    List<OrderCartResponseDto> mapToList(List<OrderCartDto> orderCartDtoList);
 
     OrderCartResponseDto map(OrderCartDto orderCartDto);
 }

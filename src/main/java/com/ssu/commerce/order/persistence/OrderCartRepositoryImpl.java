@@ -26,7 +26,7 @@ public class OrderCartRepositoryImpl implements OrderCartRepositoryCustom{
 
     @Override
     public Page<OrderCart> selectOrderCartPage(
-            @NonNull SelectOrderCartListParamDto paramDto,
+            @NonNull final SelectOrderCartListParamDto paramDto,
             @NonNull Pageable pageable
     ) {
         final List<OrderCart> result = jpaQueryFactory.select(orderCart)

@@ -6,6 +6,7 @@ import lombok.Data;
 
 import java.util.List;
 
+@Data
 public class OrderWithItemsDto {
     private Order order;
     private List<OrderItem> orderItems;
