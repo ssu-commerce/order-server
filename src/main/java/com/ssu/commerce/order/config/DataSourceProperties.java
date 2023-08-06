@@ -31,7 +31,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
     @NotNull
     @Override
     public String getDataSource() {
-        return this.dataSource;
+        return dataSource;
     }
 
     @Override
@@ -42,7 +42,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
     @NotNull
     @Override
     public String getDriverClassName() {
-        return this.driverClassName;
+        return driverClassName;
     }
 
     @Override
@@ -53,7 +53,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
     @NotNull
     @Override
     public String getPassword() {
-        return this.password;
+        return password;
     }
 
     @Override
@@ -64,7 +64,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
     @NotNull
     @Override
     public String getProjectName() {
-        return "order";
+        return "book";
     }
 
     @Override
@@ -75,7 +75,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
     @NotNull
     @Override
     public String getUserId() {
-        return this.userId;
+        return userId;
     }
 
     @Override

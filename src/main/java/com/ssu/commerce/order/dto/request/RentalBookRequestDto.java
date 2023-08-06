@@ -4,11 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
 public class RentalBookRequestDto {
-
-    private Long bookId;
-    private String orderLocation; // 도서 배송 위치
+    private String bookId;
+    private LocalDateTime startedAt;
+    private LocalDateTime endAt;
 }

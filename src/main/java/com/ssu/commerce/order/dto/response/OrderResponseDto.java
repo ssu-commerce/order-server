@@ -5,5 +5,7 @@ import lombok.Builder;
 
 @Builder
 @AllArgsConstructor
-public class RentalBookResponseDto {
+public class OrderResponseDto {
+
+    private String orderId;
 }

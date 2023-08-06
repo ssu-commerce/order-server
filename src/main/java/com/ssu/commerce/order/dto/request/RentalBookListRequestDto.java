@@ -4,10 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 @Builder
 @AllArgsConstructor
-public class ReturnBookRequestDto {
-
-    private String orderItemId;
+public class RentalBookListRequestDto {
+    private List<RentalBookRequestDto> rentalBookRequestDtoList;
 }
