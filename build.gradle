@@ -25,6 +25,7 @@ ext {
 	coreVersion="2023.07.4"
 	mapstructVersion = '1.5.5.Final'
 	queryDSLVersion = '5.0.0'
+	grpcVersion = "0.0.2"
 }
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -39,6 +40,16 @@ dependencies {
 	testCompileOnly 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "com.querydsl:querydsl-jpa:${queryDSLVersion}"
+
+	testAnnotationProcessor "com.querydsl:querydsl-apt:${queryDSLVersion}:jpa"
+	testAnnotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
+
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
 
 	/*
 	 * ssu commerce
@@ -55,6 +66,11 @@ dependencies {
 	implementation "com.querydsl:querydsl-apt:${queryDSLVersion}"
 	implementation "com.querydsl:querydsl-core:${queryDSLVersion}"
 
+	// for grpc
+	implementation ("com.ssu.commerce:grpc:$grpcVersion")
+	implementation 'link.jfire:simplerpc:1.0'
+	implementation 'io.github.HuChen-dot:simplerpc-spring-boot-starter:1.6'
+	implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
 }
 
 def querydslDir = "$buildDir/generated/querydsl"

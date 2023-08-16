@@ -6,6 +6,10 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  application:
+    name: user-service
+  main:
+    allow-circular-references: true
 
 springdoc:
   swagger-ui:
@@ -16,3 +20,7 @@ springdoc:
 logging:
   level:
     p6spy: info
+
+grpc:
+  server:
+    port: 9090
