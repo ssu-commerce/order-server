@@ -1,10 +1,10 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.response.OrderResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Pageable;
 
 @Mapper(
         componentModel = "spring",
@@ -12,8 +12,9 @@ import org.mapstruct.factory.Mappers;
         typeConversionPolicy = ReportingPolicy.ERROR,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
 )
-public interface OrderResponseDtoMapper {
-    OrderResponseDtoMapper INSTANCE = Mappers.getMapper(OrderResponseDtoMapper.class);
+public interface GetOrderCartListParamMapper {
+    GetOrderCartListParamMapper INSTANCE = Mappers.getMapper(GetOrderCartListParamMapper.class);
 
-    OrderResponseDto map(String userId);
+    GetOrderCartListParamDto map(String userId, Pageable pageable);
+
 }

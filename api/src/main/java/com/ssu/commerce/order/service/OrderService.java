@@ -134,7 +134,8 @@ public class OrderService {
 
         orderItemRepository.saveAll(
                 OrderItemListMapper.INSTANCE.mapToList(
-                        requestDto
+                        requestDto.getRentalBookRequestDtoList(),
+                        order.getId()
                 )
         );
 

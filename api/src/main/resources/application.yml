@@ -1,3 +1,12 @@
+server:
+  port: 8081
+
+grpc:
+  client:
+    getBookList:
+      address: 'static://127.0.0.1:9091'
+      negotiationtype: plaintext
+
 spring:
   jpa:
     hibernate:
@@ -6,10 +15,6 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  application:
-    name: user-service
-  main:
-    allow-circular-references: true
 
 springdoc:
   swagger-ui:
@@ -21,6 +26,4 @@ logging:
   level:
     p6spy: info
 
-grpc:
-  server:
-    port: 9090
+

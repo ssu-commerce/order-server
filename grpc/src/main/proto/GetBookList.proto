@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option java_multiple_files = true;
+option java_package = "com.ssu.commerce.order.grpc";
+
+service GetBookList {
+  rpc GetBookList (BookListRequest) returns (BookListResponse) {
+
+  }
+}
+
+message BookListRequest {
+  optional string title = 1;
+  optional int64 categoryId = 2;
+  int32 pageNumber = 3;
+  int32 pageSize = 4;
+}
+
+message BookListResponse {
+  repeated BookDto bookList = 1;
+}
+
+message BookDto {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  string writer = 4;
+  int64 price = 5;
+  optional int64 ownerId = 6;
+  optional google.protobuf.Timestamp publishDate = 7;
+  string isbn = 8;
+  int64 maxBorrowDay = 9;
+  int64 categoryId = 10;
+}
