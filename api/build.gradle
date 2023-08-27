@@ -1,0 +1,99 @@
+plugins {
+	id 'org.springframework.boot' version '2.6.7'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
+	id 'java'
+}
+
+group = 'com.ssu.commerce'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+repositories {
+	mavenCentral()
+	maven {
+		name = "GitHubPackages"
+		url = uri("https://maven.pkg.github.com/ssu-commerce/ssu-commerce-core")
+		credentials {
+			username = project.findProperty("gpr.user") == null ? System.getenv("USERNAME") : project.findProperty("gpr.user")
+			password = project.findProperty("gpr.key") == null ? System.getenv("TOKEN") : project.findProperty("gpr.key")
+		}
+	}
+}
+
+ext {
+	coreVersion="2023.07.4"
+	mapstructVersion = '1.5.5.Final'
+	queryDSLVersion = '5.0.0'
+	grpcVersion = "0.0.5"
+}
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.projectlombok:lombok'
+
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	/*
+	 * Test
+	 */
+	testCompileOnly 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation "com.querydsl:querydsl-jpa:${queryDSLVersion}"
+
+	testAnnotationProcessor "com.querydsl:querydsl-apt:${queryDSLVersion}:jpa"
+	testAnnotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
+
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+
+
+	/*
+	 * ssu commerce
+	 */
+	implementation("com.ssu.commerce:ssu-commerce-core:$coreVersion")
+
+	// mapstruct
+	implementation group: 'org.mapstruct', name: 'mapstruct', version: "${mapstructVersion}"
+	compileOnly group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
+	annotationProcessor group: 'org.mapstruct', name: 'mapstruct-processor', version: "${mapstructVersion}"
+
+	// Querydsl
+	implementation("com.querydsl:querydsl-jpa:${queryDSLVersion}")
+	implementation "com.querydsl:querydsl-apt:${queryDSLVersion}"
+	implementation "com.querydsl:querydsl-core:${queryDSLVersion}"
+
+	// for grpc
+	implementation ("com.ssu.commerce.order:grpc:$grpcVersion")
+	implementation 'link.jfire:simplerpc:1.0'
+	implementation 'io.github.HuChen-dot:simplerpc-spring-boot-starter:1.6'
+	implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
+	implementation 'net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE'
+}
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+	jpa = true
+	querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+	main.java.srcDir querydslDir
+}
+compileQuerydsl{
+	options.annotationProcessorPath = configurations.querydsl
+}
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+	querydsl.extendsFrom compileClasspath
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}

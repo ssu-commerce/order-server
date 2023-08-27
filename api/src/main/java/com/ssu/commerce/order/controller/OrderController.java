@@ -9,7 +9,7 @@ import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.dto.response.*;
 import com.ssu.commerce.order.service.OrderService;
-import lombok.NonNull;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -33,7 +33,7 @@ public class OrderController {
     @ResponseStatus(HttpStatus.OK)
     public OrderResponseDto rentalBook(
             @NotNull @RequestBody final RentalBookListRequestDto requestDto,
-            @NotNull @Authenticated final AuthInfo authInfo
+            @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo
     ) {
 
         log.debug("[rentalBook]RentalBookListRequestDto={}", requestDto);
@@ -41,7 +41,7 @@ public class OrderController {
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.rentalBook(
                         requestDto, authInfo.getUserId()
-                ).getUserId()
+                ).getId()
         );
     }
 
@@ -61,7 +61,7 @@ public class OrderController {
     @GetMapping("/book")
     public Page<GetOrderResponseDto> getOrderList(
             Pageable pageable,
-            @NotNull @Authenticated final AuthInfo authInfo
+            @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo
     ) {
         log.debug("[getOrderList]authInfo={}", authInfo);
 
@@ -102,7 +102,7 @@ public class OrderController {
 
     @GetMapping("/cart")
     public List<OrderCartResponseDto> getBookListFromCart(
-            @NotNull @Authenticated final AuthInfo authInfo,
+            @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo,
             Pageable pageable
     ) {
         log.debug("getBookListFromCart]authInfo={}", authInfo);
@@ -117,7 +117,7 @@ public class OrderController {
     @PostMapping("/cart")
     public AddBookToCartResponseDto registerBookToCart(
             @Valid @RequestBody final RegisterBookToCartRequestDto requestDto,
-            @Authenticated AuthInfo authInfo
+            @Authenticated @Parameter(hidden = true) AuthInfo authInfo
     ) {
         log.debug("[addBookToCart]requestDto={}", requestDto);
 

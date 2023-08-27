@@ -1,7 +1,6 @@
 package com.ssu.commerce.order.dto.mapper;
 
 import com.ssu.commerce.order.constant.OrderState;
-import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.model.OrderItem;
 import org.mapstruct.*;
@@ -21,10 +20,10 @@ public interface OrderItemListMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderState", ignore = true)
-    OrderItem map(RentalBookRequestDto requestDto);
+    OrderItem map(RentalBookRequestDto requestDto, String orderId);
 
-
-    List<OrderItem> mapToList(RentalBookListRequestDto requestDto);
+    @ObjectFactory
+    List<OrderItem> mapToList(List<RentalBookRequestDto> requestDtoList, String orderId);
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget OrderItem orderItem) {
