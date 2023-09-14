@@ -2,8 +2,12 @@ package com.ssu.commerce.order.controller;
 
 import com.ssu.commerce.core.security.AuthInfo;
 import com.ssu.commerce.core.security.Authenticated;
+import com.ssu.commerce.order.GetBookResponseDto;
+import com.ssu.commerce.order.GetPageDto;
+import com.ssu.commerce.order.TestFeignClient;
 import com.ssu.commerce.order.constants.OrderConstant;
 import com.ssu.commerce.order.dto.mapper.*;
+import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RegisterBookToCartRequestDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
@@ -12,14 +16,19 @@ import com.ssu.commerce.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -27,7 +36,11 @@ import java.util.List;
 @RequestMapping(OrderConstant.ORDER_API_BASE)
 public class OrderController {
 
+    @Autowired
     private final OrderService orderService;
+
+    @Autowired
+    private final TestFeignClient testFeignClient;
 
     @PostMapping("/book/rental")
     @ResponseStatus(HttpStatus.OK)
@@ -40,8 +53,9 @@ public class OrderController {
 
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.rentalBook(
-                        requestDto, authInfo.getUserId()
-                ).getId()
+                        requestDto,
+                        UUID.fromString(authInfo.getUserId())
+                )
         );
     }
 
@@ -54,7 +68,6 @@ public class OrderController {
 
         return ReturnBookResponseDtoMapper.INSTANCE.map(
                 orderService.returnBook(requestDto)
-                        .getId()
         );
     }
 
@@ -75,7 +88,7 @@ public class OrderController {
 
     @PostMapping("/approve/{id}")
     public ApproveRentalResponseDto approveRental (
-            @PathVariable final String id
+            @PathVariable final UUID id
     ) {
         log.debug("[approveRental]id={}", id);
 
@@ -88,7 +101,7 @@ public class OrderController {
 
     @PostMapping("/reject/{id}")
     public RejectRentalResponseDto rejectRental (
-            @PathVariable final String id
+            @PathVariable final UUID id
     ) {
         log.debug("[rejectRental]id={}", id);
 
@@ -101,16 +114,21 @@ public class OrderController {
 
 
     @GetMapping("/cart")
-    public List<OrderCartResponseDto> getBookListFromCart(
+    public Page<OrderCartResponseDto> getBookListFromCart(
             @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo,
             Pageable pageable
     ) {
         log.debug("getBookListFromCart]authInfo={}", authInfo);
 
-        return OrderCartResponseDtoMapper.INSTANCE.mapToList(
-                orderService.getCartItemList(
-                        GetOrderCartListParamMapper.INSTANCE.map(authInfo.getUserId(), pageable)
-                ).getContent()
+        final Page<SelectOrderCartParamDto> selectOrderCartParamDtoPage = orderService.getCartItemList(
+                GetOrderCartListParamMapper.INSTANCE.map(authInfo.getUserId(), pageable)
+        );
+
+        return new PageImpl<>(
+                OrderCartResponseDtoMapper.INSTANCE.mapToList(selectOrderCartParamDtoPage.getContent()),
+                selectOrderCartParamDtoPage.getPageable(),
+                selectOrderCartParamDtoPage.getTotalElements()
+
         );
     }
 
@@ -125,7 +143,7 @@ public class OrderController {
                 .id(
                         orderService.addBookToCart(
                                 RegisterBookToCartParamDtoMapper.INSTANCE.map(requestDto),
-                                authInfo.getUserId()
+                                UUID.fromString(authInfo.getUserId())
                         )
                 )
                 .build();
@@ -133,7 +151,7 @@ public class OrderController {
 
     @DeleteMapping("/cart/{bookId}")
     public DeleteBookFromCartResponseDto deleteBookFromCart(
-            @PathVariable final String bookId
+            @PathVariable final UUID bookId
     ) {
         log.debug("[deleteBookFromCart]bookId={}", bookId);
 
@@ -142,5 +160,17 @@ public class OrderController {
                         orderService.deleteBookFromCart(bookId)
                 )
                 .build();
+    }
+
+    @GetMapping("/test")
+    public List<GetBookResponseDto> test() {
+        LocalDateTime startTime = LocalDateTime.now();
+        GetPageDto dtoList =  testFeignClient.getTest(0, "title", 1L);
+
+        LocalDateTime endTime = LocalDateTime.now();
+
+        Duration duration = Duration.between(startTime, endTime);
+        log.info("[feignClientTime] : {}", duration.toMillis());
+        return dtoList.getContents();
     }
 }

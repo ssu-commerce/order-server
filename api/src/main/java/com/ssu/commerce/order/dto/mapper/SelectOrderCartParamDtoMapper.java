@@ -2,8 +2,8 @@ package com.ssu.commerce.order.dto.mapper;
 
 import com.ssu.commerce.order.dto.param.SelectOrderCartDto;
 import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
-import com.ssu.commerce.order.dto.response.OrderCartResponseDto;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -17,9 +17,14 @@ import java.util.List;
         typeConversionPolicy = ReportingPolicy.ERROR,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
 )
-public interface OrderCartResponseDtoMapper {
-    OrderCartResponseDtoMapper INSTANCE = Mappers.getMapper(OrderCartResponseDtoMapper.class);
+public interface SelectOrderCartParamDtoMapper {
+    SelectOrderCartParamDtoMapper INSTANCE = Mappers.getMapper(SelectOrderCartParamDtoMapper.class);
 
-    List<OrderCartResponseDto> mapToList(List<SelectOrderCartParamDto> dto);
-    OrderCartResponseDto map(SelectOrderCartParamDto orderCartDto);
+    List<SelectOrderCartParamDto> mapToList(List<SelectOrderCartDto> dto);
+
+    @Mapping(source = "orderCart.userId", target = "userId")
+    @Mapping(source = "orderCartItemList.bookId", target = "bookId")
+    @Mapping(source = "orderCartItemList.addedAt", target = "addedAt")
+    SelectOrderCartParamDto map(SelectOrderCartDto dto);
+
 }

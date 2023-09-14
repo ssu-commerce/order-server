@@ -20,14 +20,13 @@ public interface OrderItemListMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "orderState", ignore = true)
-    OrderItem map(RentalBookRequestDto requestDto, String orderId);
+    OrderItem map(RentalBookRequestDto requestDto, UUID orderId);
 
     @ObjectFactory
-    List<OrderItem> mapToList(List<RentalBookRequestDto> requestDtoList, String orderId);
+    List<OrderItem> mapToList(List<RentalBookRequestDto> requestDtoList, UUID orderId);
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget OrderItem orderItem) {
-        orderItem.setId(UUID.randomUUID().toString());
         orderItem.setOrderState(OrderState.REGISTERED);
     }
 }

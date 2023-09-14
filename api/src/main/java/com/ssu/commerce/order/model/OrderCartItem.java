@@ -1,5 +1,6 @@
 package com.ssu.commerce.order.model;
 
+import com.ssu.commerce.order.constant.OrderState;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,8 +16,8 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "order_cart")
-public class OrderCart {
+@Table(name = "order_cart_item")
+public class OrderCartItem {
 
     @Id
     @GeneratedValue(generator = "uuid2")
@@ -24,6 +25,12 @@ public class OrderCart {
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "user_id")
-    private UUID userId;
+    @Column(name = "book_id", columnDefinition = "BINARY(16)")
+    private UUID bookId;
+
+    @Column(name = "order_cart_id", columnDefinition = "BINARY(16)")
+    private UUID orderCartId;
+
+    @Column(name = "added_at")
+    private LocalDateTime addedAt;
 }

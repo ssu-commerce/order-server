@@ -15,7 +15,9 @@ import org.springframework.stereotype.Component;
 public class SecurityFilter implements UrlPermissionFilter {
     @Override
     public ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry urlPermissions(@NotNull ExpressionUrlAuthorizationConfigurer<HttpSecurity>.ExpressionInterceptUrlRegistry authorizeRequests) {
-        return authorizeRequests.antMatchers(HttpMethod.GET, "/getBookListTest-grpc").permitAll().anyRequest().authenticated();
+        return authorizeRequests.antMatchers(HttpMethod.GET, "/getBookListTest-grpc").permitAll()
+                .antMatchers(HttpMethod.GET, "/order/api/v1/test").permitAll()
+                .anyRequest().authenticated();
 
     }
 }

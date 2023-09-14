@@ -4,7 +4,8 @@ import com.ssu.commerce.order.model.OrderCart;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface OrderCartRepository extends JpaRepository<OrderCart, Long>, OrderCartRepositoryCustom {
-    Optional<OrderCart> findByUserId(String userId);
+public interface OrderCartRepository extends JpaRepository<OrderCart, UUID>, OrderCartRepositoryCustom {
+    Optional<OrderCart> findByUserId(UUID userId);
 }

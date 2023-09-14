@@ -6,6 +6,8 @@ import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
+import java.util.UUID;
+
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -15,5 +17,5 @@ import org.mapstruct.factory.Mappers;
 public interface ReturnBookResponseDtoMapper {
     ReturnBookResponseDtoMapper INSTANCE = Mappers.getMapper(ReturnBookResponseDtoMapper.class);
 
-    ReturnBookResponseDto map(String orderItemId);
+    ReturnBookResponseDto map(UUID orderItemId);
 }

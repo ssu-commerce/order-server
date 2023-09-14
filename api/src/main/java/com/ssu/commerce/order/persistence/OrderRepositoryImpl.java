@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 import static com.ssu.commerce.order.model.QOrder.order;
 import static com.ssu.commerce.order.model.QOrderItem.orderItem;
@@ -50,7 +51,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
     }
 
     private BooleanExpression eqUserId(
-            final String userId
+            final UUID userId
     ) {
         return Objects.nonNull(userId)
                 ? order.userId.eq(userId)
