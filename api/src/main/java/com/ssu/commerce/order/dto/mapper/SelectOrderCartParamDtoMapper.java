@@ -7,7 +7,6 @@ import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 
