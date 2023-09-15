@@ -2,9 +2,6 @@ package com.ssu.commerce.order.controller;
 
 import com.ssu.commerce.core.security.AuthInfo;
 import com.ssu.commerce.core.security.Authenticated;
-import com.ssu.commerce.order.GetBookResponseDto;
-import com.ssu.commerce.order.GetPageDto;
-import com.ssu.commerce.order.TestFeignClient;
 import com.ssu.commerce.order.constants.OrderConstant;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
@@ -25,9 +22,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -39,8 +33,6 @@ public class OrderController {
     @Autowired
     private final OrderService orderService;
 
-    @Autowired
-    private final TestFeignClient testFeignClient;
 
     @PostMapping("/book/rental")
     @ResponseStatus(HttpStatus.OK)
@@ -160,17 +152,5 @@ public class OrderController {
                         orderService.deleteBookFromCart(bookId)
                 )
                 .build();
-    }
-
-    @GetMapping("/test")
-    public List<GetBookResponseDto> test() {
-        LocalDateTime startTime = LocalDateTime.now();
-        GetPageDto dtoList =  testFeignClient.getTest(0, "title", 1L);
-
-        LocalDateTime endTime = LocalDateTime.now();
-
-        Duration duration = Duration.between(startTime, endTime);
-        log.info("[feignClientTime] : {}", duration.toMillis());
-        return dtoList.getContents();
     }
 }
