@@ -6,13 +6,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
-    datasource:
-      url: jdbc:tc:mysql:///
-      username:
-      password:
-      driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-      hikari:
-        maximum-pool-size: 5
+  datasource:
+    url: jdbc:tc:mysql:///
+    username:
+    password:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    hikari:
+      maximum-pool-size: 5
 
 springdoc:
   swagger-ui:
