@@ -1,5 +1,6 @@
 package com.ssu.commerce.order.persistence;
 
+import com.ssu.commerce.order.config.ObjectMapperConfig;
 import com.ssu.commerce.order.supplier.OrderTestDataSupplier;
 import com.ssu.commerce.core.jpa.JpaConfig;
 import com.ssu.commerce.order.config.QuerydslConfig;
@@ -12,8 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 @DataJpaTest
 @ActiveProfiles("test")
-@Import({JpaConfig.class, QuerydslConfig.class})
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import({JpaConfig.class, QuerydslConfig.class, ObjectMapperConfig.class})
 public class OrderRepositoryTest implements OrderTestDataSupplier {
 
     @Autowired
