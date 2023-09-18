@@ -1,0 +1,25 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create # test
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    url: jdbc:tc:mysql:///
+    username:
+    password:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    hikari:
+      maximum-pool-size: 5
+
+springdoc:
+  swagger-ui:
+    base-package: com.ssu.commerce.order
+    title: order api
+    version: 1.0
+
+logging:
+  level:
+    p6spy: info

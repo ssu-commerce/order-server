@@ -2,16 +2,18 @@ package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.exception.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
-import com.ssu.commerce.order.dto.OrderCartDto;
+import com.ssu.commerce.order.dto.param.SelectOrderCartDto;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
+import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.dto.response.GetOrderResponseDto;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;
+import com.ssu.commerce.order.model.OrderCartItem;
 import com.ssu.commerce.order.model.OrderItem;
-import com.ssu.commerce.order.dto.mapper.OrderCartDtoMapper;
+import com.ssu.commerce.order.persistence.OrderCartItemRepository;
 import com.ssu.commerce.order.persistence.OrderCartRepository;
 import com.ssu.commerce.order.persistence.OrderItemRepository;
 import com.ssu.commerce.order.persistence.OrderRepository;
@@ -35,6 +37,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final OrderCartRepository orderCartRepository;
+    private final OrderCartItemRepository orderCartItemRepository;
 
     public void createOrder() {
         /*
@@ -93,7 +96,7 @@ public class OrderService {
 //    }
 
     @Transactional
-    public OrderItem returnBook(
+    public UUID returnBook(
             ReturnBookRequestDto responseDto
     ) {
         /*
@@ -112,11 +115,11 @@ public class OrderService {
         orderItem.setOrderState(OrderState.RETURNED);
         orderItem = orderItemRepository.save(orderItem);
 
-        return orderItem;
+        return orderItem.getId();
     }
 
     @Transactional
-    public Order rentalBook(RentalBookListRequestDto requestDto, String userId) {
+    public UUID rentalBook(RentalBookListRequestDto requestDto, UUID userId) {
 
         /*
          *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error, 결제 포인트 확인 후 결제,
@@ -126,7 +129,6 @@ public class OrderService {
 
         Order order = orderRepository.save(
                 Order.builder()
-                        .id(UUID.randomUUID().toString())
                         .orderedAt(LocalDateTime.now())
                         .userId(userId)
                         .build()
@@ -139,11 +141,11 @@ public class OrderService {
                 )
         );
 
-        return order;
+        return order.getId();
     }
 
     @Transactional
-    public String approveRental(String id) {
+    public UUID approveRental(UUID id) {
         OrderItem orderItem = orderItemRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException(
                         String.format("order not found; orderId=%s", id),
@@ -161,7 +163,7 @@ public class OrderService {
     }
 
     @Transactional
-    public String rejectRental(String id) {
+    public UUID rejectRental(UUID id) {
         OrderItem orderItem = orderItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("order not found; orderId=%s", id),
@@ -175,42 +177,53 @@ public class OrderService {
     }
 
     @Transactional
-    public String addBookToCart(
+    public UUID addBookToCart(
             @NonNull @Valid RegisterBookToCartParamDto paramDto,
-            String userId
+            UUID userId
     ) {
-        return orderCartRepository.save(
-                OrderCart.builder()
-                        .id(UUID.randomUUID().toString())
-                        .userId(userId)
+
+        OrderCart orderCart = orderCartRepository.findByUserId(userId)
+                .orElseGet(() ->
+                        orderCartRepository.save(
+                                OrderCart.builder()
+                                        .userId(userId)
+                                        .build()
+                        )
+                );
+
+        return orderCartItemRepository.save(
+                OrderCartItem.builder()
                         .bookId(paramDto.getBookId())
+                        .orderCartId(orderCart.getId())
                         .addedAt(LocalDateTime.now())
                         .build()
-        ).getUserId();
+        ).getId();
     }
 
     @Transactional
-    public String deleteBookFromCart(String id) {
-        OrderCart orderCart = orderCartRepository.findByUserId(id)
+    public UUID deleteBookFromCart(UUID id) {
+        OrderCart orderCart = orderCartRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("orderCart not found; cartId=%s", id),
                         "ORDER_CART_001"
                 ));
         orderCartRepository.delete(orderCart);
-        return orderCart.getUserId();
+        return orderCart.getId();
     }
 
-    public Page<OrderCartDto> getCartItemList(
+    public Page<SelectOrderCartParamDto> getCartItemList(
             @NonNull final GetOrderCartListParamDto paramDto
     ) {
 
+        final Page<SelectOrderCartDto> selectOrderCartDtoPage = orderCartRepository.selectOrderCartPage(
+                SelectOrderCartListParamDtoMapper.INSTANCE.map(paramDto),
+                paramDto.getPageable()
+        );
+
         return new PageImpl<>(
-                OrderCartDtoMapper.INSTANCE.mapToList(
-                        orderCartRepository.selectOrderCartPage(
-                                SelectOrderCartListParamDtoMapper.INSTANCE.map(paramDto),
-                                paramDto.getPageable()
-                        ).getContent()
-                )
+                SelectOrderCartParamDtoMapper.INSTANCE.mapToList(selectOrderCartDtoPage.getContent()),
+                selectOrderCartDtoPage.getPageable(),
+                selectOrderCartDtoPage.getTotalElements()
         );
     }
 

@@ -6,12 +6,13 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Builder
 @AllArgsConstructor
 public class RentalBookRequestDto {
-    private String bookId;
+    private UUID bookId;
     private LocalDateTime startedAt;
     private LocalDateTime endAt;
 }

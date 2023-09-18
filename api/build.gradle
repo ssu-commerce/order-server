@@ -1,3 +1,11 @@
+buildscript {
+	ext {
+		protobufVersion = '3.15.0'
+		protobufPluginVersion = '0.8.14'
+		buildGrpcVersion = '1.53.0'
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.6.7'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
@@ -72,6 +80,11 @@ dependencies {
 	implementation 'io.github.HuChen-dot:simplerpc-spring-boot-starter:1.6'
 	implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
 	implementation 'net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE'
+
+	implementation "io.grpc:grpc-protobuf:${buildGrpcVersion}"
+	implementation "io.grpc:grpc-stub:${buildGrpcVersion}"
+	implementation "io.grpc:grpc-core:${buildGrpcVersion}"
+
 }
 
 def querydslDir = "$buildDir/generated/querydsl"
