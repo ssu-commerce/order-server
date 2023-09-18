@@ -1,4 +1,4 @@
-package com.ssu.commerce.order.dto.mapper;
+package com.ssu.commerce.order.dto.param;
 
 import lombok.Builder;
 import lombok.Data;

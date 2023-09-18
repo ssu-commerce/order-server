@@ -9,7 +9,6 @@ import com.ssu.commerce.order.dto.response.OrderWithItemsDto;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
@@ -30,8 +29,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
 
     @Override
     public Page<OrderWithItemsDto> selectOrderPage(
-            @NonNull final SelectOrderListParamDto paramDto,
-            @NonNull Pageable pageable
+            @NonNull final SelectOrderListParamDto paramDto
     ) {
         final JPAQuery<OrderWithItemsDto> jpaQuery = jpaQueryFactory.select(Projections.fields(OrderWithItemsDto.class, order,orderItem))
                 .from(order)
@@ -47,7 +45,7 @@ public class OrderRepositoryImpl implements OrderRepositoryCustom {
                 );
 
         List<OrderWithItemsDto> result = jpaQuery.fetch();
-        return PageableExecutionUtils.getPage(result, pageable, countQuery::fetchOne);
+        return PageableExecutionUtils.getPage(result, paramDto.getPageable(), countQuery::fetchOne);
     }
 
     private BooleanExpression eqUserId(

@@ -1,5 +1,6 @@
 package com.ssu.commerce.order.dto.mapper;
 
+import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
 import com.ssu.commerce.order.dto.param.query.SelectOrderCartListParamDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;

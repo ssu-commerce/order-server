@@ -2,13 +2,13 @@ package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.exception.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
-import com.ssu.commerce.order.dto.param.SelectOrderCartDto;
+import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
+import com.ssu.commerce.order.dto.param.GetOrderResponseParamDto;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
 import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
-import com.ssu.commerce.order.dto.response.GetOrderResponseDto;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderCartItem;
@@ -21,7 +21,6 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -221,11 +220,10 @@ public class OrderService {
         ).map(SelectOrderCartParamDtoMapper.INSTANCE::map);
     }
 
-    public Page<GetOrderResponseDto> getOrderList(GetOrderListParamDto paramDto) {
+    public Page<GetOrderResponseParamDto> getOrderList(GetOrderListParamDto paramDto) {
 
         return orderRepository.selectOrderPage(
-                SelectOrderListParamDtoMapper.INSTANCE.map(paramDto),
-                paramDto.getPageable()
-        ).map(GetOrderResponseDtoMapper.INSTANCE::map);
+                SelectOrderListParamDtoMapper.INSTANCE.map(paramDto)
+        ).map(GetOrderResponseParamDtoMapper.INSTANCE::map);
     }
 }

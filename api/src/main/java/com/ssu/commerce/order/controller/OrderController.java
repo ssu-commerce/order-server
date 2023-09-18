@@ -69,11 +69,11 @@ public class OrderController {
         log.debug("[getOrderList]authInfo={}", authInfo);
 
         return orderService.getOrderList(
-                GetOrderListParamMapper.INSTANCE.map(
-                        authInfo.getUserId(),
-                        pageable
-                )
-        );
+                GetOrderListParamDto.builder()
+                        .userId(authInfo.getUserId())
+                        .pageable(pageable)
+                        .build()
+        ).map(GetOrderResponseDtoMapper.INSTANCE::map);
     }
 
     @PostMapping("/approve/{id}")
