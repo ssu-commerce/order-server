@@ -215,16 +215,10 @@ public class OrderService {
             @NonNull final GetOrderCartListParamDto paramDto
     ) {
 
-        final Page<SelectOrderCartDto> selectOrderCartDtoPage = orderCartRepository.selectOrderCartPage(
+        return orderCartRepository.selectOrderCartPage(
                 SelectOrderCartListParamDtoMapper.INSTANCE.map(paramDto),
                 paramDto.getPageable()
-        );
-
-        return new PageImpl<>(
-                SelectOrderCartParamDtoMapper.INSTANCE.mapToList(selectOrderCartDtoPage.getContent()),
-                selectOrderCartDtoPage.getPageable(),
-                selectOrderCartDtoPage.getTotalElements()
-        );
+        ).map(SelectOrderCartParamDtoMapper.INSTANCE::map);
     }
 
     public Page<GetOrderResponseDto> getOrderList(GetOrderListParamDto paramDto) {

@@ -2,9 +2,8 @@ package com.ssu.commerce.order.controller;
 
 import com.ssu.commerce.core.security.AuthInfo;
 import com.ssu.commerce.core.security.Authenticated;
-import com.ssu.commerce.order.constants.OrderConstant;
+import com.ssu.commerce.order.constant.OrderConstant;
 import com.ssu.commerce.order.dto.mapper.*;
-import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RegisterBookToCartRequestDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
@@ -15,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -112,16 +110,12 @@ public class OrderController {
     ) {
         log.debug("getBookListFromCart]authInfo={}", authInfo);
 
-        final Page<SelectOrderCartParamDto> selectOrderCartParamDtoPage = orderService.getCartItemList(
-                GetOrderCartListParamMapper.INSTANCE.map(authInfo.getUserId(), pageable)
-        );
-
-        return new PageImpl<>(
-                OrderCartResponseDtoMapper.INSTANCE.mapToList(selectOrderCartParamDtoPage.getContent()),
-                selectOrderCartParamDtoPage.getPageable(),
-                selectOrderCartParamDtoPage.getTotalElements()
-
-        );
+        return orderService.getCartItemList(
+                        GetOrderCartListParamMapper.INSTANCE.map(
+                                authInfo.getUserId()
+                                , pageable
+                        ))
+                .map(OrderCartResponseDtoMapper.INSTANCE::map);
     }
 
     @PostMapping("/cart")

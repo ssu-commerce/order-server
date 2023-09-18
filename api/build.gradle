@@ -85,6 +85,11 @@ dependencies {
 	implementation "io.grpc:grpc-stub:${buildGrpcVersion}"
 	implementation "io.grpc:grpc-core:${buildGrpcVersion}"
 
+	// testContainers
+	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'
+	testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
+	testImplementation 'org.testcontainers:mysql:1.17.6'
+	testImplementation 'org.testcontainers:jdbc:1.17.6'
 }
 
 def querydslDir = "$buildDir/generated/querydsl"
