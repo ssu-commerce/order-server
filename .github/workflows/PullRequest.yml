@@ -24,10 +24,6 @@ jobs:
           server-password: GITHUB_TOKEN
           overwrite-settings: true
           job-status: success
-      - name: Show Secrets
-        run: |
-          echo "Username: ${{ secrets.USERNAME }}"
-          echo "Token: ${{ secrets.TOKEN }}"
 
       - name: Cache gradle modules
         uses: actions/cache@v2
@@ -41,12 +37,6 @@ jobs:
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
-
-      - name: Build with Gradle
-        env:
-          USERNAME: ${{secrets.USERNAME}}
-          TOKEN: ${{secrets.TOKEN}}
-        run: ./gradlew build
 
       - name: Run Tests
         env:
