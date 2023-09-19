@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.response.GetOrderResponseDto;
+import com.ssu.commerce.order.dto.param.GetOrderResponseParamDto;
 import com.ssu.commerce.order.dto.response.OrderWithItemsDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
@@ -13,8 +13,8 @@ import org.mapstruct.factory.Mappers;
         typeConversionPolicy = ReportingPolicy.ERROR,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
 )
-public interface GetOrderResponseDtoMapper {
-    GetOrderResponseDtoMapper INSTANCE = Mappers.getMapper(GetOrderResponseDtoMapper.class);
+public interface GetOrderResponseParamDtoMapper {
+    GetOrderResponseParamDtoMapper INSTANCE = Mappers.getMapper(GetOrderResponseParamDtoMapper.class);
 
-    GetOrderResponseDto map(OrderWithItemsDto dto);
+    GetOrderResponseParamDto map(OrderWithItemsDto dto);
 }
