@@ -1,0 +1,51 @@
+name: Run Tests on Pull Request
+
+on:
+  pull_request:
+    branches: ['*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v2
+        with:
+          java-version: 11
+          distribution: 'adopt'
+          architecture: x64
+          check-latest: false
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+          overwrite-settings: true
+          job-status: success
+
+      - name: Cache gradle modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Tests
+        env:
+          USERNAME: ${{secrets.USERNAME}}
+          TOKEN: ${{secrets.TOKEN}}
+        run: ./gradlew test
+
+      - name: Build with Gradle
+        env:
+          USERNAME: ${{secrets.USERNAME}}
+          TOKEN: ${{secrets.TOKEN}}
+        run: ./gradlew build
