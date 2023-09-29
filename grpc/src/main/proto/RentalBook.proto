@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.ssu.commerce.order.grpc";
+
+service RentalBook {
+  rpc RentalBook (RentalBookRequest) returns (RentalBookResponse) {
+
+  }
+}
+
+service CompleteRentalBook {
+  rpc CompleteRentalBook (CompleteRentalBookRequest) returns (CompleteRentalBookResponse) {
+
+  }
+}
+
+message RentalBookRequest {
+  string token = 1;
+  string id = 2;
+}
+
+message RentalBookResponse {
+  bool rentalAvailabilityResponse = 1;
+}
+
+message CompleteRentalBookRequest {
+  string token = 1;
+  string id = 2;
+}
+
+message CompleteRentalBookResponse {
+  bool completeRentalResponse = 1;
+}
