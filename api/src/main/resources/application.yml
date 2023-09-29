@@ -6,6 +6,12 @@ grpc:
     getBookList:
       address: 'static://127.0.0.1:9091'
       negotiationtype: plaintext
+    rentalBook:
+      address: 'static://127.0.0.1:9091'
+      negotiationtype: plaintext
+    completeRentalBook:
+      address: 'static://127.0.0.1:9091'
+      negotiationtype: plaintext
 
 spring:
   jpa:

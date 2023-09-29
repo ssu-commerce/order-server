@@ -126,7 +126,7 @@ public class OrderService {
     }
 
     @Transactional
-    public UUID rentalBook(RentalBookRequestDto requestDto, UUID userId) {
+    public Order rentalBook(RentalBookRequestDto requestDto, UUID userId) {
 
         /*
          *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error
@@ -152,6 +152,7 @@ public class OrderService {
                         .build()
         );
 
+
         orderItemRepository.save(
                 OrderItemListMapper.INSTANCE.map(
                         requestDto,
@@ -159,13 +160,15 @@ public class OrderService {
                 )
         );
 
+
         CompleteRentalBookResponse completeRentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto.getBookId().toString(), userId.toString());
 
         if (!completeRentalBookResponse.getCompleteRentalResponse()) {
             throw new OrderFailException("ORDER_002", "Cannot rental Book : book state update fail");
         }
 
-        return order.getId();
+
+        return order;
     }
 
     @Transactional
