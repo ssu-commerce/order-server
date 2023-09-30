@@ -12,9 +12,11 @@ import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.exception.DistributedLockException;
 import com.ssu.commerce.order.exception.OrderFailException;
+import com.ssu.commerce.order.exception.RollBackException;
 import com.ssu.commerce.order.grpc.CompleteRentalBookResponse;
 import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
 import com.ssu.commerce.order.grpc.RentalBookResponse;
+import com.ssu.commerce.order.grpc.RollBackBookResponse;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderCartItem;
@@ -138,12 +140,22 @@ public class OrderService {
         RentalBookResponse rentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
 
         if (!rentalBookResponse.getRentalAvailabilityResponse()) {
-            throw new DistributedLockException("ORDER_001", "Cannot rental Book : Lock Failed");
+            throw new DistributedLockException("ORDER_001", "Cannot rent Book : Lock Failed");
         }
 
         /*
-            TODO 결제 API 연동
+         *   TODO 결제 API 연동
+         *    현재는 임시 처리, 연동 후엔 proto 정의해서 결제 리턴값 사용
          */
+
+        boolean paymentFail = false;
+        if (!paymentFail) {
+            RollBackBookResponse rollBackBookResponse = getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto.getBookId().toString(), userId.toString());
+            if (!rollBackBookResponse.getRollBackBookResponse()) {
+                throw new RollBackException("ORDER_003", "Cannot roll back Book : " + requestDto.getBookId());
+            }
+            throw new RollBackException("ORDER_004", "Payment Fail : "); // 여기에 결제 실패 정보 추가
+        }
 
         Order order = orderRepository.save(
                 Order.builder()
