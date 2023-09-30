@@ -1,7 +1,9 @@
 package com.ssu.commerce.order.dto.mapper;
 
 import com.ssu.commerce.order.dto.response.OrderResponseDto;
+import com.ssu.commerce.order.model.Order;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
@@ -17,5 +19,5 @@ import java.util.UUID;
 public interface OrderResponseDtoMapper {
     OrderResponseDtoMapper INSTANCE = Mappers.getMapper(OrderResponseDtoMapper.class);
 
-    OrderResponseDto map(UUID orderId);
+    OrderResponseDto map(Order order);
 }

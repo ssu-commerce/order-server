@@ -33,7 +33,7 @@ ext {
 	coreVersion="2023.07.4"
 	mapstructVersion = '1.5.5.Final'
 	queryDSLVersion = '5.0.0'
-	grpcVersion = "0.0.5"
+	grpcVersion = "0.0.10"
 }
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -90,6 +90,13 @@ dependencies {
 	testImplementation 'org.testcontainers:junit-jupiter:1.17.6'
 	testImplementation 'org.testcontainers:mysql:1.17.6'
 	testImplementation 'org.testcontainers:jdbc:1.17.6'
+
+	// Spring Security Test
+	testImplementation 'org.springframework.security:spring-security-test:5.6.2'
+
+	// LocalDateTime serialize
+	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 }
 
 def querydslDir = "$buildDir/generated/querydsl"

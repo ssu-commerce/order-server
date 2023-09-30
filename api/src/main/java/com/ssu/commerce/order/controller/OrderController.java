@@ -6,6 +6,7 @@ import com.ssu.commerce.order.constant.OrderConstant;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.request.RegisterBookToCartRequestDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
+import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.dto.response.*;
 import com.ssu.commerce.order.service.OrderService;
@@ -35,11 +36,11 @@ public class OrderController {
     @PostMapping("/book/rental")
     @ResponseStatus(HttpStatus.OK)
     public OrderResponseDto rentalBook(
-            @NotNull @RequestBody final RentalBookListRequestDto requestDto,
+            @NotNull @RequestBody final RentalBookRequestDto requestDto,
             @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo
     ) {
 
-        log.debug("[rentalBook]RentalBookListRequestDto={}", requestDto);
+        log.debug("[rentalBook]RentalBookRequestDto={}", requestDto);
 
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.rentalBook(

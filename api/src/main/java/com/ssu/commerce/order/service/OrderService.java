@@ -8,7 +8,13 @@ import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
 import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
+import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
+import com.ssu.commerce.order.exception.DistributedLockException;
+import com.ssu.commerce.order.exception.OrderFailException;
+import com.ssu.commerce.order.grpc.CompleteRentalBookResponse;
+import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
+import com.ssu.commerce.order.grpc.RentalBookResponse;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderCartItem;
@@ -27,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,6 +44,7 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
     private final OrderCartRepository orderCartRepository;
     private final OrderCartItemRepository orderCartItemRepository;
+    private final GetAvailableBookInfoGrpcService getAvailableBookInfoGrpcService;
 
     public void createOrder() {
         /*
@@ -118,12 +126,23 @@ public class OrderService {
     }
 
     @Transactional
-    public UUID rentalBook(RentalBookListRequestDto requestDto, UUID userId) {
+    public Order rentalBook(RentalBookRequestDto requestDto, UUID userId) {
 
         /*
-         *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error, 결제 포인트 확인 후 결제,
-         *        책을 빌리면 바로 장바구니에서 삭제할건지, (approve, reject) 이후 삭제할건지
-         *
+         *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error
+         *    현재 토큰 대신 userId로 보냄 이후에 수정 필요
+         *    rentalBook 메소드는 하나의 책에 대한 주문만 처리
+         *    장바구니(책 여러개)에 대한 처리는 다른 메소드에서 진행
+         */
+
+        RentalBookResponse rentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
+
+        if (!rentalBookResponse.getRentalAvailabilityResponse()) {
+            throw new DistributedLockException("ORDER_001", "Cannot rental Book : Lock Failed");
+        }
+
+        /*
+            TODO 결제 API 연동
          */
 
         Order order = orderRepository.save(
@@ -133,14 +152,23 @@ public class OrderService {
                         .build()
         );
 
-        orderItemRepository.saveAll(
-                OrderItemListMapper.INSTANCE.mapToList(
-                        requestDto.getRentalBookRequestDtoList(),
+
+        orderItemRepository.save(
+                OrderItemListMapper.INSTANCE.map(
+                        requestDto,
                         order.getId()
                 )
         );
 
-        return order.getId();
+
+        CompleteRentalBookResponse completeRentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto.getBookId().toString(), userId.toString());
+
+        if (!completeRentalBookResponse.getCompleteRentalResponse()) {
+            throw new OrderFailException("ORDER_002", "Cannot rental Book : book state update fail");
+        }
+
+
+        return order;
     }
 
     @Transactional
