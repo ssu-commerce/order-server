@@ -15,6 +15,12 @@ service CompleteRentalBook {
   }
 }
 
+service RollBackRental {
+  rpc RollBackRental (RollBackBookRequest) returns (RollBackBookResponse) {
+
+  }
+}
+
 message RentalBookRequest {
   string token = 1;
   string id = 2;
@@ -31,4 +37,13 @@ message CompleteRentalBookRequest {
 
 message CompleteRentalBookResponse {
   bool completeRentalResponse = 1;
+}
+
+message RollBackBookRequest {
+  string token = 1;
+  string id = 2;
+}
+
+message RollBackBookResponse {
+  bool rollBackBookResponse = 1;
 }
