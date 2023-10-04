@@ -174,6 +174,7 @@ public class OrderService {
                     )
             );
         } catch (Exception e) {
+            log.error("Order save error : " + e.toString());
             /*
              * TODO 결제 롤백 연동
              */
