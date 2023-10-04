@@ -157,20 +157,29 @@ public class OrderService {
             throw new RollBackException("ORDER_004", "Payment Fail : "); // 여기에 결제 실패 정보 추가
         }
 
-        Order order = orderRepository.save(
-                Order.builder()
-                        .orderedAt(LocalDateTime.now())
-                        .userId(userId)
-                        .build()
-        );
+        Order order = null;
+        try {
+            order = orderRepository.save(
+                    Order.builder()
+                            .orderedAt(LocalDateTime.now())
+                            .userId(userId)
+                            .build()
+            );
 
 
-        orderItemRepository.save(
-                OrderItemListMapper.INSTANCE.map(
-                        requestDto,
-                        order.getId()
-                )
-        );
+            orderItemRepository.save(
+                    OrderItemListMapper.INSTANCE.map(
+                            requestDto,
+                            order.getId()
+                    )
+            );
+        } catch (Exception e) {
+            /*
+             * TODO 결제 롤백 연동
+             */
+            getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
+
+        }
 
 
         CompleteRentalBookResponse completeRentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto.getBookId().toString(), userId.toString());
