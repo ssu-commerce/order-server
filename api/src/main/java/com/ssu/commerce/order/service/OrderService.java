@@ -7,16 +7,11 @@ import com.ssu.commerce.order.dto.param.GetOrderResponseParamDto;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
 import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
-import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
-import com.ssu.commerce.order.exception.DistributedLockException;
 import com.ssu.commerce.order.exception.OrderFailException;
-import com.ssu.commerce.order.exception.RollBackException;
 import com.ssu.commerce.order.grpc.CompleteRentalBookResponse;
 import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
-import com.ssu.commerce.order.grpc.RentalBookResponse;
-import com.ssu.commerce.order.grpc.RollBackBookResponse;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderCartItem;
@@ -35,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -127,7 +121,6 @@ public class OrderService {
         return orderItem.getId();
     }
 
-    @Transactional
     public Order rentalBook(RentalBookRequestDto requestDto, UUID userId) {
 
         /*
@@ -137,50 +130,51 @@ public class OrderService {
          *    장바구니(책 여러개)에 대한 처리는 다른 메소드에서 진행
          */
 
-        RentalBookResponse rentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
-
-        if (!rentalBookResponse.getRentalAvailabilityResponse()) {
-            throw new DistributedLockException("ORDER_001", "Cannot rent Book : Lock Failed");
-        }
+        getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
 
         /*
          *   TODO 결제 API 연동
-         *    현재는 임시 처리, 연동 후엔 proto 정의해서 결제 리턴값 사용
+         *    현재는 임시 처리, 연동 후엔 proto 정의해서 사용
          */
 
         boolean paymentFail = false;
         if (!paymentFail) {
-            RollBackBookResponse rollBackBookResponse = getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto.getBookId().toString(), userId.toString());
-            if (!rollBackBookResponse.getRollBackBookResponse()) {
-                throw new RollBackException("ORDER_003", "Cannot roll back Book : " + requestDto.getBookId());
-            }
-            throw new RollBackException("ORDER_004", "Payment Fail : "); // 여기에 결제 실패 정보 추가
+            getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto.getBookId().toString(), userId.toString());
         }
 
-        Order order = orderRepository.save(
-                Order.builder()
-                        .orderedAt(LocalDateTime.now())
-                        .userId(userId)
-                        .build()
-        );
+        Order order = saveOrder(userId, requestDto);
 
-
-        orderItemRepository.save(
-                OrderItemListMapper.INSTANCE.map(
-                        requestDto,
-                        order.getId()
-                )
-        );
-
-
-        CompleteRentalBookResponse completeRentalBookResponse = getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto.getBookId().toString(), userId.toString());
-
-        if (!completeRentalBookResponse.getCompleteRentalResponse()) {
-            throw new OrderFailException("ORDER_002", "Cannot rental Book : book state update fail");
-        }
-
+        getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto.getBookId().toString(), userId.toString());
 
         return order;
+    }
+
+    @Transactional
+    Order saveOrder(UUID userId, RentalBookRequestDto requestDto) {
+        try {
+            Order order = orderRepository.save(
+                    Order.builder()
+                            .orderedAt(LocalDateTime.now())
+                            .userId(userId)
+                            .build()
+            );
+
+            orderItemRepository.save(
+                    OrderItemListMapper.INSTANCE.map(
+                            requestDto,
+                            order.getId()
+                    )
+            );
+
+            return order;
+        } catch (Exception e) {
+            log.error("Order save error : " + e.getMessage());
+            /*
+             * TODO 결제 롤백 연동
+             */
+            getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
+            throw new OrderFailException("ORDER_001", "Order save error : " + e.getMessage());
+        }
     }
 
     @Transactional
