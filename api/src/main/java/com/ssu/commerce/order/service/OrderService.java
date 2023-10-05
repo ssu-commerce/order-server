@@ -138,7 +138,7 @@ public class OrderService {
          */
 
         boolean paymentFail = false;
-        if (!paymentFail) {
+        if (paymentFail) {
             getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto.getBookId().toString(), userId.toString());
         }
 
