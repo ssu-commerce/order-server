@@ -2,16 +2,15 @@ server:
   port: 8081
 
 grpc:
+  commonSettings: &commonSettings
+    address: 'static://127.0.0.1:9091'
+    negotiationtype: plaintext
+
   client:
-    getBookList:
-      address: 'static://127.0.0.1:9091'
-      negotiationtype: plaintext
-    rentalBook:
-      address: 'static://127.0.0.1:9091'
-      negotiationtype: plaintext
-    completeRentalBook:
-      address: 'static://127.0.0.1:9091'
-      negotiationtype: plaintext
+    getBookList: *commonSettings
+    rentalBook: *commonSettings
+    completeRentalBook: *commonSettings
+    rollBackRental: *commonSettings
 
 spring:
   jpa:
