@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.service;
 
-import com.ssu.commerce.core.exception.NotFoundException;
+import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
 import com.ssu.commerce.order.dto.param.GetOrderResponseParamDto;
@@ -10,7 +10,6 @@ import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.exception.OrderFailException;
-import com.ssu.commerce.order.grpc.CompleteRentalBookResponse;
 import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderCart;

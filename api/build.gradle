@@ -30,7 +30,7 @@ repositories {
 }
 
 ext {
-	coreVersion="2023.07.4"
+	coreVersion="beta-2023.10.48"
 	mapstructVersion = '1.5.5.Final'
 	queryDSLVersion = '5.0.0'
 	grpcVersion = "0.0.11"
@@ -62,7 +62,9 @@ dependencies {
 	/*
 	 * ssu commerce
 	 */
-	implementation("com.ssu.commerce:ssu-commerce-core:$coreVersion")
+	implementation("com.ssu.commerce:ssu-commerce-core-web:$coreVersion")
+	implementation("com.ssu.commerce:ssu-commerce-core-security:$coreVersion")
+	implementation("com.ssu.commerce:ssu-commerce-core-jpa:$coreVersion")
 
 	// mapstruct
 	implementation group: 'org.mapstruct', name: 'mapstruct', version: "${mapstructVersion}"
@@ -92,7 +94,7 @@ dependencies {
 	testImplementation 'org.testcontainers:jdbc:1.17.6'
 
 	// Spring Security Test
-	testImplementation 'org.springframework.security:spring-security-test:5.6.2'
+	testImplementation 'org.springframework.security:spring-security-test'
 
 	// LocalDateTime serialize
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'

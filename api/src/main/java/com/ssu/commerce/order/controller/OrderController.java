@@ -1,11 +1,9 @@
 package com.ssu.commerce.order.controller;
 
-import com.ssu.commerce.core.security.AuthInfo;
-import com.ssu.commerce.core.security.Authenticated;
+import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.constant.OrderConstant;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.request.RegisterBookToCartRequestDto;
-import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
 import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
 import com.ssu.commerce.order.dto.response.*;
@@ -17,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -37,7 +36,7 @@ public class OrderController {
     @ResponseStatus(HttpStatus.OK)
     public OrderResponseDto rentalBook(
             @NotNull @RequestBody final RentalBookRequestDto requestDto,
-            @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo
+            @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
 
         log.debug("[rentalBook]RentalBookRequestDto={}", requestDto);
@@ -45,7 +44,7 @@ public class OrderController {
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.rentalBook(
                         requestDto,
-                        UUID.fromString(authInfo.getUserId())
+                        principal.getUserId()
                 )
         );
     }
@@ -65,13 +64,13 @@ public class OrderController {
     @GetMapping("/book")
     public Page<GetOrderResponseDto> getOrderList(
             Pageable pageable,
-            @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo
+            @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal
     ) {
-        log.debug("[getOrderList]authInfo={}", authInfo);
+        log.debug("[getOrderList]SsuCommerceAuthenticatedPrincipal={}", principal);
 
         return orderService.getOrderList(
                 GetOrderListParamDto.builder()
-                        .userId(authInfo.getUserId())
+                        .userId(principal.getUserId().toString())
                         .pageable(pageable)
                         .build()
         ).map(GetOrderResponseDtoMapper.INSTANCE::map);
@@ -106,14 +105,14 @@ public class OrderController {
 
     @GetMapping("/cart")
     public Page<OrderCartResponseDto> getBookListFromCart(
-            @NotNull @Authenticated @Parameter(hidden = true) final AuthInfo authInfo,
+            @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal,
             Pageable pageable
     ) {
-        log.debug("getBookListFromCart]authInfo={}", authInfo);
+        log.debug("getBookListFromCart]SsuCommerceAuthenticatedPrincipal={}", principal);
 
         return orderService.getCartItemList(
                         GetOrderCartListParamMapper.INSTANCE.map(
-                                authInfo.getUserId()
+                                principal.getUserId().toString()
                                 , pageable
                         ))
                 .map(OrderCartResponseDtoMapper.INSTANCE::map);
@@ -122,7 +121,7 @@ public class OrderController {
     @PostMapping("/cart")
     public AddBookToCartResponseDto registerBookToCart(
             @Valid @RequestBody final RegisterBookToCartRequestDto requestDto,
-            @Authenticated @Parameter(hidden = true) AuthInfo authInfo
+            @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal
     ) {
         log.debug("[addBookToCart]requestDto={}", requestDto);
 
@@ -130,7 +129,7 @@ public class OrderController {
                 .id(
                         orderService.addBookToCart(
                                 RegisterBookToCartParamDtoMapper.INSTANCE.map(requestDto),
-                                UUID.fromString(authInfo.getUserId())
+                                principal.getUserId()
                         )
                 )
                 .build();
