@@ -1,10 +1,9 @@
 package com.ssu.commerce.order.config;
 
 
-import com.ssu.commerce.core.configs.UrlPermissionFilter;
+import com.ssu.commerce.core.security.config.UrlPermissionFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.ExpressionUrlAuthorizationConfigurer;
 import org.springframework.stereotype.Component;

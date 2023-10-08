@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.filter;
 
-import com.ssu.commerce.core.configs.UrlPermissionFilter;
+import com.ssu.commerce.core.security.config.UrlPermissionFilter;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

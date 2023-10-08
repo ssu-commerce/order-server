@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.config;
 
-import com.ssu.commerce.core.configs.AbstractDataSourceProperties;
+import com.ssu.commerce.core.jpa.config.AbstractDataSourceProperties;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
