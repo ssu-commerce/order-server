@@ -1,7 +1,60 @@
-project(':api') {
-
+plugins {
+    id 'java'
+    id "com.ssu.commerce.plugin.github-registry" version "$corePluginVersion"
+    id "com.ssu.commerce.plugin.docker-publish" version "$corePluginVersion"
+    id "com.ssu.commerce.plugin.maven-publish" version "$corePluginVersion"
 }
 
-project(':grpc') {
+allprojects{
+    version = '1.1.1'
+    apply plugin: "java"
 
+    repositories {
+        mavenCentral()
+    }
+
+    sourceCompatibility = '11'
+}
+
+project(':api'){
+    apply plugin: "com.ssu.commerce.plugin.github-registry"
+    apply plugin: "com.ssu.commerce.plugin.docker-publish"
+    group = 'com.ssu.commerce'
+    version = '0.0.1'
+}
+
+project(':grpc'){
+    apply plugin: "com.ssu.commerce.plugin.maven-publish"
+    group = 'com.ssu.commerce.order'
+    version = '0.0.13'
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ssu-commerce/order-server")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
+
+    publishing {
+        publications {
+            gpr(MavenPublication) {
+                from(components.java)
+            }
+        }
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = uri("https://maven.pkg.github.com/ssu-commerce/order-server")
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                }
+            }
+        }
+    }
 }
