@@ -10,14 +10,15 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
 
-    implementation 'link.jfire:simplerpc:1.0'
-    implementation 'io.github.HuChen-dot:simplerpc-spring-boot-starter:1.6'
-    implementation 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
-    implementation 'net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE'
+    api 'link.jfire:simplerpc:1.0'
+    api 'io.github.HuChen-dot:simplerpc-spring-boot-starter:1.6'
+    api 'net.devh:grpc-server-spring-boot-starter:2.13.1.RELEASE'
+    api 'net.devh:grpc-client-spring-boot-starter:2.13.1.RELEASE'
 
-    implementation "io.grpc:grpc-protobuf:$buildGrpcVersion"
-    implementation "io.grpc:grpc-stub:$buildGrpcVersion"
-    implementation "io.grpc:grpc-core:$buildGrpcVersion"
+    api "io.grpc:grpc-protobuf:$buildGrpcVersion"
+    api "io.grpc:grpc-stub:$buildGrpcVersion"
+    api "io.grpc:grpc-core:$buildGrpcVersion"
+    api "com.google.protobuf:protobuf-java:3.11.0"
 
     implementation group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
     compileOnly 'jakarta.annotation:jakarta.annotation-api:2.1.1' // Java 9+ compatibility - Do NOT update to 2.0.0
