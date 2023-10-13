@@ -34,8 +34,8 @@ project(':grpc') {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/ssu-commerce/order-server")
             credentials {
-                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
-                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                username = (project.findProperty("gpr.user") || project.findProperty("gpr.user") == "") ?: System.getenv("USERNAME")
+                password = (project.findProperty("gpr.key") || project.findProperty("gpr.key") == "") ?: System.getenv("TOKEN")
             }
         }
     }
