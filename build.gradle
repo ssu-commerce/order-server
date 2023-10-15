@@ -1,7 +1,42 @@
-project(':api') {
+plugins {
+    id 'java'
+    id 'java-library'
+    id "com.ssu.commerce.plugin.github-registry" version "$corePluginVersion"
+    id "com.ssu.commerce.plugin.docker-publish" version "$corePluginVersion"
+    id "com.ssu.commerce.plugin.maven-publish" version "$corePluginVersion"
+}
 
+allprojects {
+    version = System.getenv("VERSION")
+    apply plugin: "java"
+    apply plugin: "java-library"
+
+    repositories {
+        mavenCentral()
+    }
+
+    sourceCompatibility = '11'
+}
+
+project(':api') {
+    apply plugin: "com.ssu.commerce.plugin.github-registry"
+    apply plugin: "com.ssu.commerce.plugin.docker-publish"
+    group = 'com.ssu.commerce'
 }
 
 project(':grpc') {
+    apply plugin: "com.ssu.commerce.plugin.maven-publish"
+    group = 'com.ssu.commerce.order'
 
+    repositories {
+        mavenCentral()
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ssu-commerce/order-server")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+            }
+        }
+    }
 }
