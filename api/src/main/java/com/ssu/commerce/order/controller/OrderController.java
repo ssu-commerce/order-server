@@ -34,7 +34,7 @@ public class OrderController {
 
     @PostMapping("/book/rental")
     @ResponseStatus(HttpStatus.OK)
-    public OrderResponseDto rentalBook(
+    public RentalBookResponseDto rentalBook(
             @NotNull @RequestBody final RentalBookRequestDto requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
@@ -62,7 +62,7 @@ public class OrderController {
     }
 
     @GetMapping("/book")
-    public Page<GetOrderResponseDto> getOrderList(
+    public Page<OrderListResponseDto> getOrderList(
             Pageable pageable,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal
     ) {
@@ -70,10 +70,10 @@ public class OrderController {
 
         return orderService.getOrderList(
                 GetOrderListParamDto.builder()
-                        .userId(principal.getUserId().toString())
+                        .userId(principal.getUserId())
                         .pageable(pageable)
                         .build()
-        ).map(GetOrderResponseDtoMapper.INSTANCE::map);
+        ).map(orderListParamDto -> new OrderListResponseDto(orderListParamDto));
     }
 
     @PostMapping("/approve/{id}")

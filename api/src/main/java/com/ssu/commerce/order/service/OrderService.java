@@ -3,12 +3,12 @@ package com.ssu.commerce.order.service;
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
-import com.ssu.commerce.order.dto.param.GetOrderResponseParamDto;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
 import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
+import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
 import com.ssu.commerce.order.model.Order;
@@ -253,10 +253,11 @@ public class OrderService {
         ).map(SelectOrderCartParamDtoMapper.INSTANCE::map);
     }
 
-    public Page<GetOrderResponseParamDto> getOrderList(GetOrderListParamDto paramDto) {
+    public Page<OrderListParamDto> getOrderList(GetOrderListParamDto paramDto) {
 
-        return orderRepository.selectOrderPage(
-                SelectOrderListParamDtoMapper.INSTANCE.map(paramDto)
-        ).map(GetOrderResponseParamDtoMapper.INSTANCE::map);
+        return orderRepository.findByUserId(
+                paramDto.getUserId(),
+                paramDto.getPageable()
+        ).map(order -> new OrderListParamDto(order));
     }
 }
