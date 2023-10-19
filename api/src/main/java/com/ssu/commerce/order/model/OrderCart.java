@@ -24,6 +24,6 @@ public class OrderCart {
     @Column(name = "id", columnDefinition = "BINARY(16)")
     private UUID id;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
     private UUID userId;
 }

@@ -27,7 +27,7 @@ public class Order {
     @Column(name = "ordered_at")
     private LocalDateTime orderedAt;
 
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "BINARY(16)")
     private UUID userId;
 
 }
