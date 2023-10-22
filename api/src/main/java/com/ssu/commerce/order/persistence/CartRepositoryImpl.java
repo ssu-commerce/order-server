@@ -5,7 +5,6 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssu.commerce.order.dto.param.query.SelectOrderCartListParamDto;
 import com.ssu.commerce.order.dto.param.SelectOrderCartDto;
-import com.ssu.commerce.order.model.OrderCart;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +21,7 @@ import static com.ssu.commerce.order.model.QOrderCartItem.orderCartItem;
 @Validated
 @Repository
 @RequiredArgsConstructor
-public class OrderCartRepositoryImpl implements OrderCartRepositoryCustom{
+public class CartRepositoryImpl implements CartRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
