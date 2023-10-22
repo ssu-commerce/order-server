@@ -6,8 +6,18 @@ pluginManagement {
             name = "GitHubPackages"
             url = uri("https://maven.pkg.github.com/ssu-commerce/ssu-commerce-core")
             credentials {
-                username = (settings.hasProperty("gpr.user") && settings.ext["gpr.user"] != "") ?: System.getenv("USERNAME")
-                password = (settings.hasProperty("gpr.key") && settings.ext["gpr.key"] != "") ?: System.getenv("TOKEN")
+                (credentials) -> {
+                    String gprUser = (String) settings.getGradle().findProperty("gpr.user")
+                    String gprKey = (String) settings.getGradle().findProperty("gpr.key")
+
+                    if (gprUser != null && !gprUser.isEmpty() && gprKey != null && !gprKey.isEmpty()) {
+                        gprUser = System.getenv("USERNAME")
+                        gprKey = System.getenv("TOKEN")
+                    }
+
+                    username = gprUser
+                    password = gprKey
+                }
             }
         }
     }

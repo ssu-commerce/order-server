@@ -23,7 +23,7 @@ service RollBackRental {
 
 message RentalBookRequest {
   string token = 1;
-  string id = 2;
+  repeated string id = 2;
 }
 
 message RentalBookResponse {
@@ -32,7 +32,7 @@ message RentalBookResponse {
 
 message CompleteRentalBookRequest {
   string token = 1;
-  string id = 2;
+  repeated string id = 2;
 }
 
 message CompleteRentalBookResponse {
@@ -41,7 +41,7 @@ message CompleteRentalBookResponse {
 
 message RollBackBookRequest {
   string token = 1;
-  string id = 2;
+  repeated string id = 2;
 }
 
 message RollBackBookResponse {
