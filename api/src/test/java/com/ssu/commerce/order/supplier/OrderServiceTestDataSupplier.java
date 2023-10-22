@@ -1,7 +1,7 @@
 package com.ssu.commerce.order.supplier;
 
 import com.ssu.commerce.order.constant.OrderState;
-import com.ssu.commerce.order.dto.mapper.GetOrderListParamDto;
+import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.model.Order;
