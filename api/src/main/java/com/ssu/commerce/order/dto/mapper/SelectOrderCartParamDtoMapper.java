@@ -19,8 +19,6 @@ import java.util.List;
 public interface SelectOrderCartParamDtoMapper {
     SelectOrderCartParamDtoMapper INSTANCE = Mappers.getMapper(SelectOrderCartParamDtoMapper.class);
 
-    List<SelectOrderCartParamDto> mapToList(List<SelectOrderCartDto> dto);
-
     @Mapping(source = "orderCart.userId", target = "userId")
     @Mapping(source = "orderCartItemList.bookId", target = "bookId")
     @Mapping(source = "orderCartItemList.addedAt", target = "addedAt")

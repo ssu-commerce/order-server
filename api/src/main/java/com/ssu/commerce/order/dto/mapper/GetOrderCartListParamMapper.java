@@ -7,6 +7,8 @@ import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Pageable;
 
+import java.util.UUID;
+
 @Mapper(
         componentModel = "spring",
         unmappedTargetPolicy = ReportingPolicy.ERROR,
@@ -16,6 +18,6 @@ import org.springframework.data.domain.Pageable;
 public interface GetOrderCartListParamMapper {
     GetOrderCartListParamMapper INSTANCE = Mappers.getMapper(GetOrderCartListParamMapper.class);
 
-    GetOrderCartListParamDto map(String userId, Pageable pageable);
+    GetOrderCartListParamDto map(UUID userId, Pageable pageable);
 
 }

@@ -1,9 +1,10 @@
 package com.ssu.commerce.order.model;
 
 import com.ssu.commerce.order.constant.OrderState;
+import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -11,7 +12,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
+@Getter
 @Entity
 @Builder
 @NoArgsConstructor
@@ -39,4 +40,16 @@ public class OrderItem {
 
     @Column(name = "end_at")
     private LocalDateTime endAt;
+
+    public OrderItem(RentalBookRequestDto req, UUID orderId) {
+        bookId = req.getBookId();
+        orderState = OrderState.REGISTERED;
+        startedAt = req.getStartedAt();
+        endAt = req.getEndAt();
+        this.orderId = orderId;
+    }
+
+    public void updateOrderState(OrderState orderState) {
+        this.orderState = orderState;
+    }
 }
