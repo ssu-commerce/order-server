@@ -5,6 +5,6 @@ import lombok.Builder;
 
 @Builder
 @AllArgsConstructor
-public class ReturnBookResponseDto {
+public class UpdateOrderItemResponseDto {
     private String orderItemId;
 }

@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.response.ReturnBookResponseDto;
+import com.ssu.commerce.order.dto.response.UpdateOrderItemResponseDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -14,8 +14,8 @@ import java.util.UUID;
         typeConversionPolicy = ReportingPolicy.ERROR,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
 )
-public interface ReturnBookResponseDtoMapper {
-    ReturnBookResponseDtoMapper INSTANCE = Mappers.getMapper(ReturnBookResponseDtoMapper.class);
+public interface UpdateOrderItemResponseDtoMapper {
+    UpdateOrderItemResponseDtoMapper INSTANCE = Mappers.getMapper(UpdateOrderItemResponseDtoMapper.class);
 
-    ReturnBookResponseDto map(UUID orderItemId);
+    UpdateOrderItemResponseDto map(UUID orderItemId);
 }

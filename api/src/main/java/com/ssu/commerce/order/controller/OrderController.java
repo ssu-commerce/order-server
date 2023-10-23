@@ -47,12 +47,12 @@ public class OrderController {
 
     @PutMapping("/{orderItemId}")
     @ResponseStatus(HttpStatus.OK)
-    public ReturnBookResponseDto updateOrderItem(
+    public UpdateOrderItemResponseDto updateOrderItem(
             @PathVariable UUID orderItemId
     ) {
         log.debug("[returnBook]orderItemId={}", orderItemId);
 
-        return ReturnBookResponseDtoMapper.INSTANCE.map(
+        return UpdateOrderItemResponseDtoMapper.INSTANCE.map(
                 orderService.returnBook(orderItemId)
         );
     }
