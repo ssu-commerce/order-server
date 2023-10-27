@@ -11,7 +11,7 @@ import javax.validation.constraints.NotEmpty;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class RegisterBookToCartRequestDto {
+public class CreateCartItemRequestDto {
     @NotEmpty
     private String bookId;
 }

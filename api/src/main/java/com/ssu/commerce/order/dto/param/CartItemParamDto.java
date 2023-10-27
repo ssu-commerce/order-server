@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class GetOrderCartListParamDto {
+public class CartItemParamDto {
     private UUID userId;
     private Pageable pageable;
 }

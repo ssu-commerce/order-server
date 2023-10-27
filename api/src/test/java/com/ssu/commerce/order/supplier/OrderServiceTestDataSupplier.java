@@ -2,7 +2,7 @@ package com.ssu.commerce.order.supplier;
 
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
-import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
@@ -53,8 +53,8 @@ public interface OrderServiceTestDataSupplier {
         );
     }
 
-    static RentalBookRequestDto getRentalBookRequestDto() {
-        return RentalBookRequestDto.builder()
+    static CreateOrderRequestDto getRentalBookRequestDto() {
+        return CreateOrderRequestDto.builder()
                 .bookId(TEST_VAL_BOOK_ID)
                 .startedAt(TEST_VAL_DATE_TIME)
                 .endAt(TEST_VAL_DATE_END)

@@ -1,14 +1,12 @@
 package com.ssu.commerce.order.dto.mapper;
 
 import com.ssu.commerce.order.dto.param.SelectOrderCartDto;
-import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
+import com.ssu.commerce.order.dto.param.SelectCartItemParamDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
-
-import java.util.List;
 
 @Mapper(
         componentModel = "spring",
@@ -22,6 +20,6 @@ public interface SelectOrderCartParamDtoMapper {
     @Mapping(source = "orderCart.userId", target = "userId")
     @Mapping(source = "orderCartItemList.bookId", target = "bookId")
     @Mapping(source = "orderCartItemList.addedAt", target = "addedAt")
-    SelectOrderCartParamDto map(SelectOrderCartDto dto);
+    SelectCartItemParamDto map(SelectOrderCartDto dto);
 
 }

@@ -58,7 +58,7 @@ public class OrderController {
     }
 
     @GetMapping
-    public Page<OrderListResponseDto> getOrderList(
+    public Page<OrderResponseDto> getOrder(
             Pageable pageable,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
@@ -69,6 +69,6 @@ public class OrderController {
                         .userId(principal.getUserId())
                         .pageable(pageable)
                         .build()
-        ).map(orderListParamDto -> new OrderListResponseDto(orderListParamDto));
+        ).map(orderListParamDto -> new OrderResponseDto(orderListParamDto));
     }
 }

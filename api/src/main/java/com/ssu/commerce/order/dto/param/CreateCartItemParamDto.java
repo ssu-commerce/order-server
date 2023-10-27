@@ -3,13 +3,12 @@ package com.ssu.commerce.order.dto.param;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import javax.validation.constraints.NotEmpty;
 import java.util.UUID;
 
 @Getter
 @Builder
-public class SelectOrderCartParamDto {
-    private UUID userId;
+public class CreateCartItemParamDto {
+    @NotEmpty
     private UUID bookId;
-    private LocalDateTime addedAt;
 }

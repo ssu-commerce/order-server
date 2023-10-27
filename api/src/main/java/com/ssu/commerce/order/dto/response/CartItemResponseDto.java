@@ -5,7 +5,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class OrderCartResponseDto {
+public class CartItemResponseDto {
 
     private String userId;
 

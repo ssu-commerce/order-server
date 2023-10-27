@@ -3,9 +3,9 @@ package com.ssu.commerce.order.service;
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.dto.mapper.SelectOrderCartListParamDtoMapper;
 import com.ssu.commerce.order.dto.mapper.SelectOrderCartParamDtoMapper;
-import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
-import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
-import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
+import com.ssu.commerce.order.dto.param.CartItemParamDto;
+import com.ssu.commerce.order.dto.param.CreateCartItemParamDto;
+import com.ssu.commerce.order.dto.param.SelectCartItemParamDto;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderCartItem;
 import com.ssu.commerce.order.persistence.CartItemRepository;
@@ -28,8 +28,8 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
 
     @Transactional
-    public UUID addBookToCart(
-            @NonNull @Valid RegisterBookToCartParamDto paramDto,
+    public UUID createCartItem(
+            @NonNull @Valid CreateCartItemParamDto paramDto,
             UUID userId
     ) {
 
@@ -52,7 +52,7 @@ public class CartService {
     }
 
     @Transactional
-    public UUID deleteBookFromCart(UUID id) {
+    public UUID deleteCartItem(UUID id) {
         OrderCart orderCart = cartRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         String.format("orderCart not found; cartId=%s", id),
@@ -62,8 +62,8 @@ public class CartService {
         return orderCart.getId();
     }
 
-    public Page<SelectOrderCartParamDto> getCartItemList(
-            @NonNull final GetOrderCartListParamDto paramDto
+    public Page<SelectCartItemParamDto> getCartItem(
+            @NonNull final CartItemParamDto paramDto
     ) {
 
         return cartRepository.selectOrderCartPage(

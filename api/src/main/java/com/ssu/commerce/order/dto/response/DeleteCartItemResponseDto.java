@@ -7,6 +7,6 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class DeleteBookFromCartResponseDto {
+public class DeleteCartItemResponseDto {
     private UUID id;
 }

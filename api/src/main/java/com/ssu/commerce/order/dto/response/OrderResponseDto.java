@@ -12,14 +12,14 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderListResponseDto {
+public class OrderResponseDto {
 
     private UUID id;
 
     private LocalDateTime orderedAt;
 
     private UUID userId;
-    public OrderListResponseDto(OrderListParamDto orderListParamDto) {
+    public OrderResponseDto(OrderListParamDto orderListParamDto) {
         id = orderListParamDto.getId();
         orderedAt = orderListParamDto.getOrderedAt();
         userId = orderListParamDto.getUserId();

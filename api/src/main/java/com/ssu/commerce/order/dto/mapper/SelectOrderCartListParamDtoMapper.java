@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
+import com.ssu.commerce.order.dto.param.CartItemParamDto;
 import com.ssu.commerce.order.dto.param.query.SelectOrderCartListParamDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
@@ -16,5 +16,5 @@ import org.mapstruct.factory.Mappers;
 public interface SelectOrderCartListParamDtoMapper {
     SelectOrderCartListParamDtoMapper INSTANCE = Mappers.getMapper(SelectOrderCartListParamDtoMapper.class);
 
-    SelectOrderCartListParamDto map(GetOrderCartListParamDto paramDto);
+    SelectOrderCartListParamDto map(CartItemParamDto paramDto);
 }
