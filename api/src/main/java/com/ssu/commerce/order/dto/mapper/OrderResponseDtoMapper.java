@@ -1,6 +1,6 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.response.RentalBookResponseDto;
+import com.ssu.commerce.order.dto.response.CreateOrderResponseDto;
 import com.ssu.commerce.order.model.Order;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
@@ -16,5 +16,5 @@ import org.mapstruct.factory.Mappers;
 public interface OrderResponseDtoMapper {
     OrderResponseDtoMapper INSTANCE = Mappers.getMapper(OrderResponseDtoMapper.class);
 
-    RentalBookResponseDto map(Order order);
+    CreateOrderResponseDto map(Order order);
 }

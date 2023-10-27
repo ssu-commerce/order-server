@@ -3,14 +3,13 @@ package com.ssu.commerce.order.service;
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
-import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.exception.OrderFailException;
-import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
+import com.ssu.commerce.order.grpc.BookState;
+import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
-import com.ssu.commerce.order.persistence.CartItemRepository;
-import com.ssu.commerce.order.persistence.CartRepository;
 import com.ssu.commerce.order.persistence.OrderItemRepository;
 import com.ssu.commerce.order.persistence.OrderRepository;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +30,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
-    private final GetAvailableBookInfoGrpcService getAvailableBookInfoGrpcService;
+    private final UpdateBookStateGrpcService updateBookStateGrpcService;
 
     public void createOrder() {
         /*
@@ -92,7 +89,7 @@ public class OrderService {
 //    }
 
     @Transactional
-    public UUID returnBook(UUID orderItemId) {
+    public UUID updateOrderItem(UUID orderItemId) {
         /*
          * TODO 구현이 필요합니다.
          *  1. 도서 조회 API call
@@ -111,7 +108,7 @@ public class OrderService {
         return orderItem.getId();
     }
 
-    public Order rentalBook(List<RentalBookRequestDto> requestDto, String accessToken, UUID userId) {
+    public Order createOrder(List<CreateOrderRequestDto> requestDto, String accessToken, UUID userId) {
 
         /*
          *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error
@@ -120,7 +117,7 @@ public class OrderService {
          *    장바구니(책 여러개)에 대한 처리는 다른 메소드에서 진행
          */
 
-        getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto, accessToken);
+        updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN_PROCESSING);
 
         /*
          *   TODO 결제 API 연동
@@ -129,18 +126,18 @@ public class OrderService {
 
         boolean paymentFail = false;
         if (paymentFail) {
-            getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto, accessToken);
+            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
         }
 
         Order order = saveOrder(userId, accessToken, requestDto);
 
-        getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto, accessToken);
+        updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN);
 
         return order;
     }
 
     @Transactional
-    Order saveOrder(UUID userId, String accessToken, List<RentalBookRequestDto> requestDto) {
+    Order saveOrder(UUID userId, String accessToken, List<CreateOrderRequestDto> requestDto) {
         try {
             Order order = orderRepository.save(
                     Order.builder()
@@ -160,7 +157,7 @@ public class OrderService {
             /*
              * TODO 결제 롤백 연동
              */
-            getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto, accessToken);
+            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
             throw new OrderFailException("ORDER_001", "Order save error : " + e.getMessage());
         }
     }

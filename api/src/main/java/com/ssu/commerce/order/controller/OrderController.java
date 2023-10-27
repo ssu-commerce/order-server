@@ -3,7 +3,7 @@ package com.ssu.commerce.order.controller;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
-import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.*;
 import com.ssu.commerce.order.service.OrderService;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -29,15 +29,15 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
-    public RentalBookResponseDto createOrder(
-            @NotNull @RequestBody final List<RentalBookRequestDto> requestDto,
+    public CreateOrderResponseDto createOrder(
+            @NotNull @RequestBody final List<CreateOrderRequestDto> requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
 
         log.debug("[rentalBook]RentalBookRequestDto={}", requestDto);
 
         return OrderResponseDtoMapper.INSTANCE.map(
-                orderService.rentalBook(
+                orderService.createOrder(
                         requestDto,
                         principal.getAccessToken(),
                         principal.getUserId()
@@ -53,14 +53,14 @@ public class OrderController {
         log.debug("[returnBook]orderItemId={}", orderItemId);
 
         return UpdateOrderItemResponseDtoMapper.INSTANCE.map(
-                orderService.returnBook(orderItemId)
+                orderService.updateOrderItem(orderItemId)
         );
     }
 
     @GetMapping
     public Page<OrderListResponseDto> getOrderList(
             Pageable pageable,
-            @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal
+            @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
         log.debug("[getOrderList]SsuCommerceAuthenticatedPrincipal={}", principal);
 

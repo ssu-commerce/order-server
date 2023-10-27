@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.ssu.commerce.order.grpc";
+
+service UpdateBookState {
+  rpc UpdateBookState (UpdateBookStateRequest) returns (UpdateBookStateResponse) {
+
+  }
+}
+
+message UpdateBookStateRequest {
+  string token = 1;
+  BookState bookState = 2;
+  repeated string id = 3;
+}
+
+message UpdateBookStateResponse {
+  bool updateBookStateResponse = 1;
+}
+
+enum BookState {
+    REGISTERED = 0;
+    LOAN = 1;
+    LOOSE = 2;
+    DAMAGE = 3;
+    LOAN_PROCESSING = 4;
+    RETURN = 5;
+}
