@@ -17,7 +17,6 @@ import org.mapstruct.factory.Mappers;
 public interface SelectOrderCartParamDtoMapper {
     SelectOrderCartParamDtoMapper INSTANCE = Mappers.getMapper(SelectOrderCartParamDtoMapper.class);
 
-    @Mapping(source = "orderCart.userId", target = "userId")
     @Mapping(source = "orderCartItemList.bookId", target = "bookId")
     @Mapping(source = "orderCartItemList.addedAt", target = "addedAt")
     SelectCartItemParamDto map(SelectOrderCartDto dto);
