@@ -2,8 +2,7 @@ package com.ssu.commerce.order.supplier;
 
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.core.security.user.UserRole;
-import com.ssu.commerce.order.dto.request.RentalBookListRequestDto;
-import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.model.Order;
 
 import java.time.LocalDateTime;
@@ -17,24 +16,8 @@ public interface OrderControllerTestDataSupplier {
     UUID TEST_VAL_USER_ID = UUID.fromString("b94c78ae-542c-4f04-b392-4dd107252645");
     UUID TEST_VAL_ORDER_ID = UUID.fromString("3a88bd50-e2e5-4e17-9cb1-40324e93099b");
 
-    static RentalBookListRequestDto getRentalBookListRequestDto() {
-        return RentalBookListRequestDto.builder()
-                .rentalBookRequestDtoList(Arrays.asList(
-                        RentalBookRequestDto.builder()
-                                .bookId(TEST_VAL_BOOK_ID)
-                                .startedAt(LocalDateTime.now())
-                                .endAt(LocalDateTime.now().plusHours(1L))
-                                .build(),
-                        RentalBookRequestDto.builder()
-                                .bookId(TEST_VAL_ANOTHER_BOOK_ID)
-                                .startedAt(LocalDateTime.now().minusHours(1L))
-                                .endAt(LocalDateTime.now().plusHours(10L))
-                                .build()
-                )).build();
-    }
-
-    static RentalBookRequestDto getRentalBookRequestDto() {
-        return RentalBookRequestDto.builder()
+    static CreateOrderRequestDto getRentalBookRequestDto() {
+        return CreateOrderRequestDto.builder()
                 .bookId(TEST_VAL_BOOK_ID)
                 .startedAt(LocalDateTime.now())
                 .endAt(LocalDateTime.now().plusDays(10))

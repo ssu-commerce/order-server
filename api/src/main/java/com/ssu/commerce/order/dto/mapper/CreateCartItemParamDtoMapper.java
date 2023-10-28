@@ -1,7 +1,7 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
-import com.ssu.commerce.order.dto.response.OrderCartResponseDto;
+import com.ssu.commerce.order.dto.param.CreateCartItemParamDto;
+import com.ssu.commerce.order.dto.request.CreateCartItemRequestDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
@@ -13,8 +13,8 @@ import org.mapstruct.factory.Mappers;
         typeConversionPolicy = ReportingPolicy.ERROR,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
 )
-public interface OrderCartResponseDtoMapper {
-    OrderCartResponseDtoMapper INSTANCE = Mappers.getMapper(OrderCartResponseDtoMapper.class);
+public interface CreateCartItemParamDtoMapper {
+    CreateCartItemParamDtoMapper INSTANCE = Mappers.getMapper(CreateCartItemParamDtoMapper.class);
 
-    OrderCartResponseDto map(SelectOrderCartParamDto orderCartDto);
+    CreateCartItemParamDto map(CreateCartItemRequestDto requestDto);
 }

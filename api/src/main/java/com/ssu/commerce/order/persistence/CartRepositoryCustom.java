@@ -8,7 +8,7 @@ import org.springframework.data.domain.Pageable;
 
 import javax.validation.Valid;
 
-public interface OrderCartRepositoryCustom {
+public interface CartRepositoryCustom {
 
     Page<SelectOrderCartDto> selectOrderCartPage(
             @NonNull @Valid final SelectOrderCartListParamDto paramDto,

@@ -1,14 +1,14 @@
 package com.ssu.commerce.order.dto.param;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.UUID;
 
-@Data
+@Getter
 @Builder
-public class RegisterBookToCartParamDto {
+public class CreateCartItemParamDto {
     @NotEmpty
     private UUID bookId;
 }

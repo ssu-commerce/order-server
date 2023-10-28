@@ -1,18 +1,19 @@
 package com.ssu.commerce.order.dto.request;
 
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Data
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RentalBookRequestDto {
+public class CreateOrderRequestDto {
     private UUID bookId;
     private LocalDateTime startedAt;
     private LocalDateTime endAt;

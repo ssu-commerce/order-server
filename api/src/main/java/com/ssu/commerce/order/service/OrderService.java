@@ -2,33 +2,26 @@ package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
-import com.ssu.commerce.order.dto.param.GetOrderCartListParamDto;
-import com.ssu.commerce.order.dto.mapper.*;
-import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
-import com.ssu.commerce.order.dto.param.SelectOrderCartParamDto;
-import com.ssu.commerce.order.dto.request.RentalBookRequestDto;
-import com.ssu.commerce.order.dto.request.ReturnBookRequestDto;
+import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.exception.OrderFailException;
-import com.ssu.commerce.order.grpc.GetAvailableBookInfoGrpcService;
+import com.ssu.commerce.order.grpc.BookState;
+import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
-import com.ssu.commerce.order.model.OrderCart;
-import com.ssu.commerce.order.model.OrderCartItem;
 import com.ssu.commerce.order.model.OrderItem;
-import com.ssu.commerce.order.persistence.OrderCartItemRepository;
-import com.ssu.commerce.order.persistence.OrderCartRepository;
 import com.ssu.commerce.order.persistence.OrderItemRepository;
 import com.ssu.commerce.order.persistence.OrderRepository;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -37,9 +30,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-    private final OrderCartRepository orderCartRepository;
-    private final OrderCartItemRepository orderCartItemRepository;
-    private final GetAvailableBookInfoGrpcService getAvailableBookInfoGrpcService;
+    private final UpdateBookStateGrpcService updateBookStateGrpcService;
 
     public void createOrder() {
         /*
@@ -98,9 +89,7 @@ public class OrderService {
 //    }
 
     @Transactional
-    public UUID returnBook(
-            ReturnBookRequestDto responseDto
-    ) {
+    public UUID updateOrderItem(UUID orderItemId) {
         /*
          * TODO 구현이 필요합니다.
          *  1. 도서 조회 API call
@@ -108,19 +97,18 @@ public class OrderService {
          *  3. 도서 배송 API call
          */
 
-        OrderItem orderItem = orderItemRepository.findById(responseDto.getOrderItemId())
+        OrderItem orderItem = orderItemRepository.findById(orderItemId)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("orderItem not found; orderItemId=%s", responseDto.getOrderItemId()),
+                        String.format("orderItem not found; orderItemId=%s", orderItemId),
                         "ORDER_ITEM_001"
                 ));
 
-        orderItem.setOrderState(OrderState.RETURNED);
-        orderItem = orderItemRepository.save(orderItem);
+        orderItem.updateOrderState(OrderState.RETURNED);
 
         return orderItem.getId();
     }
 
-    public Order rentalBook(RentalBookRequestDto requestDto, UUID userId) {
+    public Order createOrder(List<CreateOrderRequestDto> requestDto, String accessToken, UUID userId) {
 
         /*
          *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error
@@ -129,7 +117,7 @@ public class OrderService {
          *    장바구니(책 여러개)에 대한 처리는 다른 메소드에서 진행
          */
 
-        getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
+        updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN_PROCESSING);
 
         /*
          *   TODO 결제 API 연동
@@ -138,18 +126,18 @@ public class OrderService {
 
         boolean paymentFail = false;
         if (paymentFail) {
-            getAvailableBookInfoGrpcService.sendMessageToRollBackRental(requestDto.getBookId().toString(), userId.toString());
+            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
         }
 
-        Order order = saveOrder(userId, requestDto);
+        Order order = saveOrder(userId, accessToken, requestDto);
 
-        getAvailableBookInfoGrpcService.sendMessageToCompleteRentalBook(requestDto.getBookId().toString(), userId.toString());
+        updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN);
 
         return order;
     }
 
     @Transactional
-    Order saveOrder(UUID userId, RentalBookRequestDto requestDto) {
+    Order saveOrder(UUID userId, String accessToken, List<CreateOrderRequestDto> requestDto) {
         try {
             Order order = orderRepository.save(
                     Order.builder()
@@ -158,11 +146,9 @@ public class OrderService {
                             .build()
             );
 
-            orderItemRepository.save(
-                    OrderItemListMapper.INSTANCE.map(
-                            requestDto,
-                            order.getId()
-                    )
+            orderItemRepository.saveAll(
+                    requestDto.stream().map(req ->
+                            new OrderItem(req, userId)).collect(Collectors.toList())
             );
 
             return order;
@@ -171,86 +157,9 @@ public class OrderService {
             /*
              * TODO 결제 롤백 연동
              */
-            getAvailableBookInfoGrpcService.sendMessageToGetRentalBook(requestDto.getBookId().toString(), userId.toString());
+            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
             throw new OrderFailException("ORDER_001", "Order save error : " + e.getMessage());
         }
-    }
-
-    @Transactional
-    public UUID approveRental(UUID id) {
-        OrderItem orderItem = orderItemRepository.findById(id)
-                    .orElseThrow(() -> new NotFoundException(
-                        String.format("order not found; orderId=%s", id),
-                        "ORDER_ITEM_001"
-                ));
-
-        orderItem.setOrderState(OrderState.APPROVED);
-        orderItemRepository.save(orderItem);
-
-        /*
-            TODO 배송 관련 처리
-         */
-
-        return orderItem.getId();
-    }
-
-    @Transactional
-    public UUID rejectRental(UUID id) {
-        OrderItem orderItem = orderItemRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("order not found; orderId=%s", id),
-                        "ORDER_ITEM_001"
-                ));
-
-        orderItem.setOrderState(OrderState.REJECTED);
-        orderItemRepository.save(orderItem);
-
-        return orderItem.getId();
-    }
-
-    @Transactional
-    public UUID addBookToCart(
-            @NonNull @Valid RegisterBookToCartParamDto paramDto,
-            UUID userId
-    ) {
-
-        OrderCart orderCart = orderCartRepository.findByUserId(userId)
-                .orElseGet(() ->
-                        orderCartRepository.save(
-                                OrderCart.builder()
-                                        .userId(userId)
-                                        .build()
-                        )
-                );
-
-        return orderCartItemRepository.save(
-                OrderCartItem.builder()
-                        .bookId(paramDto.getBookId())
-                        .orderCartId(orderCart.getId())
-                        .addedAt(LocalDateTime.now())
-                        .build()
-        ).getId();
-    }
-
-    @Transactional
-    public UUID deleteBookFromCart(UUID id) {
-        OrderCart orderCart = orderCartRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format("orderCart not found; cartId=%s", id),
-                        "ORDER_CART_001"
-                ));
-        orderCartRepository.delete(orderCart);
-        return orderCart.getId();
-    }
-
-    public Page<SelectOrderCartParamDto> getCartItemList(
-            @NonNull final GetOrderCartListParamDto paramDto
-    ) {
-
-        return orderCartRepository.selectOrderCartPage(
-                SelectOrderCartListParamDtoMapper.INSTANCE.map(paramDto),
-                paramDto.getPageable()
-        ).map(SelectOrderCartParamDtoMapper.INSTANCE::map);
     }
 
     public Page<OrderListParamDto> getOrderList(GetOrderListParamDto paramDto) {

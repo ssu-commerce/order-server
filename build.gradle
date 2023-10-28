@@ -27,6 +27,7 @@ project(':api') {
 project(':grpc') {
     apply plugin: "com.ssu.commerce.plugin.maven-publish"
     group = 'com.ssu.commerce.order'
+    version = '0.0.28'
 
     repositories {
         mavenCentral()

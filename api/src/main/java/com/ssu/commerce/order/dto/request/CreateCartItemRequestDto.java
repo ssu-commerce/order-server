@@ -5,12 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import javax.validation.constraints.NotEmpty;
 
 @Getter
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class RentalBookListRequestDto {
-    private List<RentalBookRequestDto> rentalBookRequestDtoList;
+@AllArgsConstructor
+public class CreateCartItemRequestDto {
+    @NotEmpty
+    private String bookId;
 }

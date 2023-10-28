@@ -1,11 +1,11 @@
 package com.ssu.commerce.order.dto.param.query;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 
 import java.util.UUID;
 
-@Data
+@Getter
 @Builder
 public class SelectOrderCartListParamDto {
     private UUID userId;

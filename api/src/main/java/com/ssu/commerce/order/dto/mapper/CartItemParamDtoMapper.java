@@ -1,11 +1,13 @@
 package com.ssu.commerce.order.dto.mapper;
 
-import com.ssu.commerce.order.dto.param.RegisterBookToCartParamDto;
-import com.ssu.commerce.order.dto.request.RegisterBookToCartRequestDto;
+import com.ssu.commerce.order.dto.param.CartItemParamDto;
 import org.mapstruct.Mapper;
 import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
+import org.springframework.data.domain.Pageable;
+
+import java.util.UUID;
 
 @Mapper(
         componentModel = "spring",
@@ -13,8 +15,9 @@ import org.mapstruct.factory.Mappers;
         typeConversionPolicy = ReportingPolicy.ERROR,
         nullValueMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT
 )
-public interface RegisterBookToCartParamDtoMapper {
-    RegisterBookToCartParamDtoMapper INSTANCE = Mappers.getMapper(RegisterBookToCartParamDtoMapper.class);
+public interface CartItemParamDtoMapper {
+    CartItemParamDtoMapper INSTANCE = Mappers.getMapper(CartItemParamDtoMapper.class);
 
-    RegisterBookToCartParamDto map(RegisterBookToCartRequestDto requestDto);
+    CartItemParamDto map(UUID userId, Pageable pageable);
+
 }

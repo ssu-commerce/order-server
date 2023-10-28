@@ -1,11 +1,11 @@
 package com.ssu.commerce.order.dto.response;
 
-import lombok.Data;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Data
-public class OrderCartResponseDto {
+@Getter
+public class CartItemResponseDto {
 
     private String userId;
 

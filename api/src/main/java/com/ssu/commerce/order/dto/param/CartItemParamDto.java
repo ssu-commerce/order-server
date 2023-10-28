@@ -1,14 +1,14 @@
-package com.ssu.commerce.order.dto.mapper;
+package com.ssu.commerce.order.dto.param;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import org.springframework.data.domain.Pageable;
 
 import java.util.UUID;
 
-@Data
+@Getter
 @Builder
-public class GetOrderListParamDto {
+public class CartItemParamDto {
     private UUID userId;
     private Pageable pageable;
 }

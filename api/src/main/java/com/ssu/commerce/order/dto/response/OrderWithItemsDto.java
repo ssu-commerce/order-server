@@ -2,11 +2,12 @@ package com.ssu.commerce.order.dto.response;
 
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
-import lombok.Data;
+import lombok.Getter;
+
 
 import java.util.List;
 
-@Data
+@Getter
 public class OrderWithItemsDto {
     private Order order;
     private List<OrderItem> orderItems;
