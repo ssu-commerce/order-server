@@ -14,7 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.service.OrderService;
-import com.ssu.commerce.order.supplier.OrderControllerTestDataSupplier;
+import com.ssu.commerce.order.supplier.OrderTestDataSupplier;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -44,7 +44,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(OrderController.class)
 @MockBean(JpaMetamodelMappingContext.class)
 @Slf4j
-class OrderControllerTest implements OrderControllerTestDataSupplier {
+class OrderControllerTest implements OrderTestDataSupplier {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
@@ -54,19 +54,19 @@ class OrderControllerTest implements OrderControllerTestDataSupplier {
 
     @BeforeEach
     void setAuthUser() {
-        SsuCommerceAuthenticatedPrincipal principal = OrderControllerTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
+        SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         Authentication authentication = new UsernamePasswordAuthenticationToken(principal, principal.getAccessToken(), null);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
     @Test
     void createOrder_success() {
-        SsuCommerceAuthenticatedPrincipal principal = OrderControllerTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
+        SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         UUID userId = principal.getUserId();
         UUID orderId = TEST_VAL_ORDER_ID;
         String accessToken = principal.getAccessToken();
-        Order order = OrderControllerTestDataSupplier.getOrder();
-        List<CreateOrderRequestDto> requestDto = OrderControllerTestDataSupplier.getRentalBookRequestDto();
+        Order order = OrderTestDataSupplier.getOrder();
+        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
         when(orderService.createOrder(eq(requestDto), eq(accessToken), eq(userId))).thenReturn(order);
 
@@ -131,8 +131,8 @@ class OrderControllerTest implements OrderControllerTestDataSupplier {
 
     @Test
     void testGetOrder_success() {
-        GetOrderListParamDto getOrderListParamDto = OrderControllerTestDataSupplier.getGetOrderListParamDto();
-        Page<OrderListParamDto> orderListParamDto = new PageImpl<>(Arrays.asList(OrderControllerTestDataSupplier.getOrderListParamDto()));
+        GetOrderListParamDto getOrderListParamDto = OrderTestDataSupplier.getGetOrderListParamDto();
+        Page<OrderListParamDto> orderListParamDto = new PageImpl<>(Arrays.asList(OrderTestDataSupplier.getOrderListParamDto()));
 
         when(orderService.getOrderList(
                 argThat(dto -> dto instanceof GetOrderListParamDto && dto.getUserId().equals(getOrderListParamDto.getUserId()
