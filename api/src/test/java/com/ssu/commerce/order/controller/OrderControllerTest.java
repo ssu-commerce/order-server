@@ -32,7 +32,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -59,34 +58,30 @@ class OrderControllerTest implements OrderTestDataSupplier {
     }
 
     @Test
-    void createOrder_success() {
+    void createOrder_success() throws Exception {
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
         when(orderService.createOrder(eq(requestDto), eq(principal.getAccessToken()), eq(principal.getUserId()))).thenReturn(OrderTestDataSupplier.getOrder());
 
-        assertDoesNotThrow(() -> {
-            mockMvc.perform(post("/api/v1/order")
-                            .content(objectMapper.writeValueAsString(requestDto))
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .with(csrf())
-                    .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
-        });
+        mockMvc.perform(post("/api/v1/order")
+                        .content(objectMapper.writeValueAsString(requestDto))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
 
         verify(orderService).createOrder(eq(requestDto), eq(principal.getAccessToken()), eq(principal.getUserId()));
     }
 
     @Test
-    void createOrder_badRequest_requestBody_is_null() {
-        assertDoesNotThrow(() -> {
-            mockMvc.perform(post("/api/v1/order")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .with(csrf())
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isBadRequest());
-        });
+    void createOrder_badRequest_requestBody_is_null() throws Exception {
+        mockMvc.perform(post("/api/v1/order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -121,7 +116,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
     }
 
     @Test
-    void testGetOrder_success() {
+    void testGetOrder_success() throws Exception {
         GetOrderListParamDto getOrderListParamDto = OrderTestDataSupplier.getGetOrderListParamDto();
         Page<OrderListParamDto> orderListParamDto = new PageImpl<>(Arrays.asList(OrderTestDataSupplier.getOrderListParamDto()));
 
@@ -129,12 +124,10 @@ class OrderControllerTest implements OrderTestDataSupplier {
                 argThat(dto -> dto instanceof GetOrderListParamDto && dto.getUserId().equals(getOrderListParamDto.getUserId()
                 )))).thenReturn(orderListParamDto);
 
-        assertDoesNotThrow(() -> {
-            mockMvc.perform(get("/api/v1/order")
-                            .with(csrf())
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk());
-        });
+        mockMvc.perform(get("/api/v1/order")
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
         verify(orderService)
                 .getOrderList(argThat(dto -> dto instanceof GetOrderListParamDto &&
