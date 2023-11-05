@@ -6,7 +6,6 @@ import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
-import com.ssu.commerce.order.model.Order;
 import org.hamcrest.Matchers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -62,13 +61,9 @@ class OrderControllerTest implements OrderTestDataSupplier {
     @Test
     void createOrder_success() {
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
-        UUID userId = principal.getUserId();
-        UUID orderId = TEST_VAL_ORDER_ID;
-        String accessToken = principal.getAccessToken();
-        Order order = OrderTestDataSupplier.getOrder();
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
-        when(orderService.createOrder(eq(requestDto), eq(accessToken), eq(userId))).thenReturn(order);
+        when(orderService.createOrder(eq(requestDto), eq(principal.getAccessToken()), eq(principal.getUserId()))).thenReturn(OrderTestDataSupplier.getOrder());
 
         assertDoesNotThrow(() -> {
             mockMvc.perform(post("/api/v1/order")
@@ -77,10 +72,10 @@ class OrderControllerTest implements OrderTestDataSupplier {
                             .with(csrf())
                     .accept(MediaType.APPLICATION_JSON))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id", Matchers.equalTo(orderId.toString())));
+                    .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
         });
 
-        verify(orderService, times(1)).createOrder(any(), eq(accessToken), eq(userId));
+        verify(orderService).createOrder(eq(requestDto), eq(principal.getAccessToken()), eq(principal.getUserId()));
     }
 
     @Test
@@ -95,38 +90,34 @@ class OrderControllerTest implements OrderTestDataSupplier {
     }
 
     @Test
-    void updateOrderItem_success() {
+    void updateOrderItem_success() throws Exception {
         UUID orderItemId = TEST_VAL_ORDER_ITEM_ID;
 
         when(orderService.updateOrderItem(orderItemId)).thenReturn(orderItemId);
 
-        assertDoesNotThrow(() -> {
-            mockMvc.perform(put("/api/v1/order/" + orderItemId)
-                            .with(csrf())
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isOk());
-        });
+        mockMvc.perform(put("/api/v1/order/" + orderItemId)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
 
-        verify(orderService, times(1)).updateOrderItem(orderItemId);
+        verify(orderService).updateOrderItem(orderItemId);
     }
 
     @Test
-    void updateOrderItem_fail_NotFoundException() {
+    void updateOrderItem_fail_NotFoundException() throws Exception {
         UUID orderItemId = TEST_VAL_ORDER_ITEM_ID;
         String errorMessage = String.format("orderItem not found; orderItemId=%s", orderItemId);
         NotFoundException notFoundException = new NotFoundException(errorMessage, "ORDER_ITEM_001");
 
         when(orderService.updateOrderItem(orderItemId)).thenThrow(notFoundException);
 
-        assertDoesNotThrow(() -> {
-            mockMvc.perform(put("/api/v1/order/" + orderItemId)
-                            .with(csrf())
-                            .accept(MediaType.APPLICATION_JSON))
-                    .andExpect(status().isNotFound())
-                    .andExpect(jsonPath("$.message", Matchers.equalTo(errorMessage)));
-        });
+        mockMvc.perform(put("/api/v1/order/" + orderItemId)
+                        .with(csrf())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message", Matchers.equalTo(errorMessage)));
 
-        verify(orderService, times(1)).updateOrderItem(orderItemId);
+        verify(orderService).updateOrderItem(orderItemId);
     }
 
     @Test
@@ -145,7 +136,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
                     .andExpect(status().isOk());
         });
 
-        verify(orderService, times(1))
+        verify(orderService)
                 .getOrderList(argThat(dto -> dto instanceof GetOrderListParamDto &&
                         dto.getUserId().equals(getOrderListParamDto.getUserId())));
     }
