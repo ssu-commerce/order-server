@@ -62,7 +62,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
-        when(orderService.createOrder(eq(requestDto), eq(principal.getAccessToken()), eq(principal.getUserId()))).thenReturn(OrderTestDataSupplier.getOrder());
+        when(orderService.createOrder(requestDto, principal.getAccessToken(), principal.getUserId())).thenReturn(OrderTestDataSupplier.getOrder());
 
         mockMvc.perform(post("/api/v1/order")
                         .content(objectMapper.writeValueAsString(requestDto))
@@ -86,33 +86,31 @@ class OrderControllerTest implements OrderTestDataSupplier {
 
     @Test
     void updateOrderItem_success() throws Exception {
-        UUID orderItemId = TEST_VAL_ORDER_ITEM_ID;
 
-        when(orderService.updateOrderItem(orderItemId)).thenReturn(orderItemId);
+        when(orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID)).thenReturn(TEST_VAL_ORDER_ITEM_ID);
 
-        mockMvc.perform(put("/api/v1/order/" + orderItemId)
+        mockMvc.perform(put("/api/v1/order/" + TEST_VAL_ORDER_ITEM_ID)
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(orderService).updateOrderItem(orderItemId);
+        verify(orderService).updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
     }
 
     @Test
     void updateOrderItem_fail_NotFoundException() throws Exception {
-        UUID orderItemId = TEST_VAL_ORDER_ITEM_ID;
-        String errorMessage = String.format("orderItem not found; orderItemId=%s", orderItemId);
+        String errorMessage = String.format("orderItem not found; orderItemId=%s", TEST_VAL_ORDER_ITEM_ID);
         NotFoundException notFoundException = new NotFoundException(errorMessage, "ORDER_ITEM_001");
 
-        when(orderService.updateOrderItem(orderItemId)).thenThrow(notFoundException);
+        when(orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID)).thenThrow(notFoundException);
 
-        mockMvc.perform(put("/api/v1/order/" + orderItemId)
+        mockMvc.perform(put("/api/v1/order/" + TEST_VAL_ORDER_ITEM_ID)
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", Matchers.equalTo(errorMessage)));
 
-        verify(orderService).updateOrderItem(orderItemId);
+        verify(orderService).updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
     }
 
     @Test

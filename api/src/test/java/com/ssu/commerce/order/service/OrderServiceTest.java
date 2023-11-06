@@ -56,34 +56,29 @@ class OrderServiceTest implements OrderTestDataSupplier {
     void creteOrder_success() {
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         Order savedOrder = OrderTestDataSupplier.getOrder();
-        UUID userId = TEST_VAL_USER_ID;
-        String token = TEST_VAL_ACCESS_TOKEN;
 
-        doReturn(savedOrder).when(orderService).saveOrder(userId, token, requestDto);
+        doReturn(savedOrder).when(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
 
-        Order resultOrder = orderService.createOrder(requestDto, token, userId);
+        Order resultOrder = orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
 
         assertEquals(savedOrder, resultOrder);
-        verify(orderService, times(1)).saveOrder(userId, token, requestDto);
+        verify(orderService, times(1)).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
     }
 
     @Test
     void creteOrder_fail_grpc_error_LoanProcessing() {
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-        Order savedOrder = OrderTestDataSupplier.getOrder();
-        UUID userId = TEST_VAL_USER_ID;
-        String token = TEST_VAL_ACCESS_TOKEN;
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto, token, BookState.LOAN_PROCESSING
+                requestDto, TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.createOrder(requestDto, token, userId);
+            orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
         });
 
         assertEquals(grpcException, resultException);
@@ -92,24 +87,21 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void creteOrder_fail_grpc_error_Loan() {
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-        Order savedOrder = OrderTestDataSupplier.getOrder();
-        UUID userId = TEST_VAL_USER_ID;
-        String token = TEST_VAL_ACCESS_TOKEN;
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto, token, BookState.LOAN_PROCESSING
+                requestDto, TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
         )).thenAnswer(invocation -> null);
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto, token, BookState.LOAN
+                requestDto, TEST_VAL_ACCESS_TOKEN, BookState.LOAN
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.createOrder(requestDto, token, userId);
+            orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
         });
 
         assertEquals(grpcException, resultException);
@@ -119,15 +111,13 @@ class OrderServiceTest implements OrderTestDataSupplier {
     void saveOrder_success() {
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         Order savedOrder = OrderTestDataSupplier.getOrder();
-        UUID userId = TEST_VAL_USER_ID;
-        String token = TEST_VAL_ACCESS_TOKEN;
 
         when(orderRepository.save(
                 argThat(order -> order instanceof Order &&
-                        order.getUserId().equals(userId))
+                        order.getUserId().equals(TEST_VAL_USER_ID))
         )).thenReturn(savedOrder);
 
-        Order result = orderService.saveOrder(userId, token, requestDto);
+        Order result = orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
 
         assertEquals(savedOrder, result);
         verify(orderRepository, times(1)).save(any());
@@ -136,8 +126,6 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void saveOrder_fail_when_order_save() {
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-        UUID userId = TEST_VAL_USER_ID;
-        String token = TEST_VAL_ACCESS_TOKEN;
 
         Exception exception = new Exception("TEST EXCEPTION : save order");
         OrderFailException orderFailException = new OrderFailException("ORDER_001", "Order save error : " + exception.getMessage());
@@ -149,7 +137,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.saveOrder(userId, token, requestDto);
+            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
         });
 
         assertEquals(orderFailException, resultException);
@@ -159,8 +147,6 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void saveOrder_fail_when_order_item_save() {
         List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-        UUID userId = TEST_VAL_USER_ID;
-        String token = TEST_VAL_ACCESS_TOKEN;
         Order savedOrder = OrderTestDataSupplier.getOrder();
 
         Exception exception = new Exception("TEST EXCEPTION : save order item");
@@ -174,14 +160,14 @@ class OrderServiceTest implements OrderTestDataSupplier {
         when(orderItemRepository.saveAll(
                 argThat(list -> list.equals(
                         requestDto.stream().map(req ->
-                                new OrderItem(req, userId)).collect(Collectors.toList())
+                                new OrderItem(req, TEST_VAL_USER_ID)).collect(Collectors.toList())
                 ))
         )).thenAnswer(invocation -> {
             throw exception;
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.saveOrder(userId, token, requestDto);
+            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
         });
 
         assertEquals(orderFailException, resultException);
@@ -205,29 +191,27 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
     @Test
     void updateOrderItem_success() {
-        UUID orderItemId = TEST_VAL_ORDER_ITEM_ID;
         OrderItem orderItem = OrderTestDataSupplier.getOrderItem();
 
-        when(orderItemRepository.findById(orderItemId)).thenReturn(Optional.ofNullable(orderItem));
+        when(orderItemRepository.findById(TEST_VAL_ORDER_ITEM_ID)).thenReturn(Optional.ofNullable(orderItem));
 
-        UUID updateItemId = orderService.updateOrderItem(orderItemId);
+        UUID updateItemId = orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
 
-        assertEquals(orderItemId, updateItemId);
-        verify(orderItemRepository, times(1)).findById(orderItemId);
+        assertEquals(TEST_VAL_ORDER_ITEM_ID, updateItemId);
+        verify(orderItemRepository, times(1)).findById(TEST_VAL_ORDER_ITEM_ID);
     }
 
     @Test
     void updateOrderItem_fail_NotFoundException() {
-        UUID orderItemId = TEST_VAL_ORDER_ITEM_ID;
         NotFoundException notFoundException = new NotFoundException(
-                String.format("orderItem not found; orderItemId=%s", orderItemId),
+                String.format("orderItem not found; orderItemId=%s", TEST_VAL_ORDER_ITEM_ID),
                 "ORDER_ITEM_001"
         );
 
-        when(orderItemRepository.findById(orderItemId)).thenThrow(notFoundException);
+        when(orderItemRepository.findById(TEST_VAL_ORDER_ITEM_ID)).thenThrow(notFoundException);
 
         NotFoundException resultException = assertThrows(NotFoundException.class, () -> {
-            orderService.updateOrderItem(orderItemId);
+            orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
         });
 
         assertEquals(notFoundException, resultException);
