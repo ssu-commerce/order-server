@@ -34,7 +34,7 @@ public class OrderController {
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
 
-        log.debug("[rentalBook]RentalBookRequestDto={}", requestDto);
+        log.debug("[createOrder]requestDto={}", requestDto);
 
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.createOrder(
@@ -50,7 +50,7 @@ public class OrderController {
     public UpdateOrderItemResponseDto updateOrderItem(
             @PathVariable UUID orderItemId
     ) {
-        log.debug("[returnBook]orderItemId={}", orderItemId);
+        log.debug("[updateOrderItem]orderItemId={}", orderItemId);
 
         return UpdateOrderItemResponseDtoMapper.INSTANCE.map(
                 orderService.updateOrderItem(orderItemId)
@@ -62,7 +62,7 @@ public class OrderController {
             Pageable pageable,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
-        log.debug("[getOrderList]SsuCommerceAuthenticatedPrincipal={}", principal);
+        log.debug("[getOrder]SsuCommerceAuthenticatedPrincipal={}", principal);
 
         return orderService.getOrderList(
                 GetOrderListParamDto.builder()

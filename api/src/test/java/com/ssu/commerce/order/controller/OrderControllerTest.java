@@ -30,7 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -114,7 +113,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
     }
 
     @Test
-    void testGetOrder_success() throws Exception {
+    void getOrder_success() throws Exception {
         GetOrderListParamDto getOrderListParamDto = OrderTestDataSupplier.getGetOrderListParamDto();
         Page<OrderListParamDto> orderListParamDto = new PageImpl<>(Arrays.asList(OrderTestDataSupplier.getOrderListParamDto()));
 
@@ -127,8 +126,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(orderService)
-                .getOrderList(argThat(dto -> dto instanceof GetOrderListParamDto &&
+        verify(orderService).getOrderList(argThat(dto -> dto instanceof GetOrderListParamDto &&
                         dto.getUserId().equals(getOrderListParamDto.getUserId())));
     }
 }
