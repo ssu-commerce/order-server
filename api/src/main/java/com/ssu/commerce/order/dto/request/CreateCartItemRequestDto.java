@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.UUID;
 
 @Getter
 @Builder
@@ -13,5 +14,5 @@ import javax.validation.constraints.NotEmpty;
 @AllArgsConstructor
 public class CreateCartItemRequestDto {
     @NotEmpty
-    private String bookId;
+    private UUID bookId;
 }
