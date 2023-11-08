@@ -208,12 +208,12 @@ class OrderServiceTest implements OrderTestDataSupplier {
                 "ORDER_ITEM_001"
         );
 
-        when(orderItemRepository.findById(TEST_VAL_ORDER_ITEM_ID)).thenThrow(notFoundException);
+        when(orderItemRepository.findById(TEST_VAL_ORDER_ITEM_ID)).thenReturn(Optional.empty());
 
         NotFoundException resultException = assertThrows(NotFoundException.class, () -> {
             orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
         });
 
-        assertEquals(notFoundException, resultException);
+        assertEquals(notFoundException.getMessage(), resultException.getMessage());
     }
 }
