@@ -113,7 +113,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Order savedOrder = OrderTestDataSupplier.getOrder();
 
         when(orderRepository.save(
-                argThat(order -> order instanceof Order &&
+                argThat(order -> order != null &&
                         order.getUserId().equals(TEST_VAL_USER_ID))
         )).thenReturn(savedOrder);
 
