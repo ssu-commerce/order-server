@@ -62,7 +62,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Order resultOrder = orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
 
         assertEquals(savedOrder, resultOrder);
-        verify(orderService, times(1)).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
+        verify(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
     }
 
     @Test
@@ -113,14 +113,17 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Order savedOrder = OrderTestDataSupplier.getOrder();
 
         when(orderRepository.save(
-                argThat(order -> order instanceof Order &&
+                argThat(order -> order != null &&
                         order.getUserId().equals(TEST_VAL_USER_ID))
         )).thenReturn(savedOrder);
 
         Order result = orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
 
         assertEquals(savedOrder, result);
-        verify(orderRepository, times(1)).save(any());
+        verify(orderRepository).save(
+                argThat(order -> order != null &&
+                        order.getUserId().equals(TEST_VAL_USER_ID))
+        );
     }
 
     @Test
@@ -198,7 +201,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         UUID updateItemId = orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
 
         assertEquals(TEST_VAL_ORDER_ITEM_ID, updateItemId);
-        verify(orderItemRepository, times(1)).findById(TEST_VAL_ORDER_ITEM_ID);
+        verify(orderItemRepository).findById(TEST_VAL_ORDER_ITEM_ID);
     }
 
     @Test
@@ -208,12 +211,12 @@ class OrderServiceTest implements OrderTestDataSupplier {
                 "ORDER_ITEM_001"
         );
 
-        when(orderItemRepository.findById(TEST_VAL_ORDER_ITEM_ID)).thenThrow(notFoundException);
+        when(orderItemRepository.findById(TEST_VAL_ORDER_ITEM_ID)).thenReturn(Optional.empty());
 
         NotFoundException resultException = assertThrows(NotFoundException.class, () -> {
             orderService.updateOrderItem(TEST_VAL_ORDER_ITEM_ID);
         });
 
-        assertEquals(notFoundException, resultException);
+        assertEquals(notFoundException.getMessage(), resultException.getMessage());
     }
 }

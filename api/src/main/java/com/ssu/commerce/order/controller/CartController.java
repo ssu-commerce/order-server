@@ -33,7 +33,7 @@ public class CartController {
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal,
             Pageable pageable
     ) {
-        log.debug("getBookListFromCart]SsuCommerceAuthenticatedPrincipal={}", principal);
+        log.debug("getCartItem]SsuCommerceAuthenticatedPrincipal={}", principal);
 
         return cartService.getCartItem(
                         CartItemParamDtoMapper.INSTANCE.map(
@@ -48,7 +48,7 @@ public class CartController {
             @Valid @RequestBody final CreateCartItemRequestDto requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal
     ) {
-        log.debug("[addBookToCart]requestDto={}", requestDto);
+        log.debug("[createCartItem]requestDto={}", requestDto);
 
         return CreateCartItemResponseDto.builder()
                 .id(
@@ -60,15 +60,15 @@ public class CartController {
                 .build();
     }
 
-    @DeleteMapping("/{bookId}")
+    @DeleteMapping("/{cartId}")
     public DeleteCartItemResponseDto deleteCartItem(
-            @PathVariable final UUID bookId
+            @PathVariable final UUID cartId
     ) {
-        log.debug("[deleteBookFromCart]bookId={}", bookId);
+        log.debug("[deleteCartItem]cartId={}", cartId);
 
         return DeleteCartItemResponseDto.builder()
                 .id(
-                        cartService.deleteCartItem(bookId)
+                        cartService.deleteCartItem(cartId)
                 )
                 .build();
     }

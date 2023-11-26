@@ -53,13 +53,13 @@ public class CartService {
 
     @Transactional
     public UUID deleteCartItem(UUID id) {
-        OrderCart orderCart = cartRepository.findById(id)
+        OrderCartItem orderCartItem = cartItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
-                        String.format("orderCart not found; cartId=%s", id),
+                        String.format("cartItem not found; cartItemId=%s", id),
                         "ORDER_CART_001"
                 ));
-        cartRepository.delete(orderCart);
-        return orderCart.getId();
+        cartItemRepository.delete(orderCartItem);
+        return orderCartItem.getId();
     }
 
     public Page<SelectCartItemParamDto> getCartItem(

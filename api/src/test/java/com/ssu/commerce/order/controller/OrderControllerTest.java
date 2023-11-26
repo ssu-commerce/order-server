@@ -29,8 +29,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -114,12 +114,12 @@ class OrderControllerTest implements OrderTestDataSupplier {
     }
 
     @Test
-    void testGetOrder_success() throws Exception {
+    void getOrder_success() throws Exception {
         GetOrderListParamDto getOrderListParamDto = OrderTestDataSupplier.getGetOrderListParamDto();
-        Page<OrderListParamDto> orderListParamDto = new PageImpl<>(Arrays.asList(OrderTestDataSupplier.getOrderListParamDto()));
+        Page<OrderListParamDto> orderListParamDto = new PageImpl<>(Collections.singletonList(OrderTestDataSupplier.getOrderListParamDto()));
 
         when(orderService.getOrderList(
-                argThat(dto -> dto instanceof GetOrderListParamDto && dto.getUserId().equals(getOrderListParamDto.getUserId()
+                argThat(dto -> dto != null && dto.getUserId().equals(getOrderListParamDto.getUserId()
                 )))).thenReturn(orderListParamDto);
 
         mockMvc.perform(get("/api/v1/order")
@@ -127,8 +127,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(orderService)
-                .getOrderList(argThat(dto -> dto instanceof GetOrderListParamDto &&
+        verify(orderService).getOrderList(argThat(dto -> dto != null &&
                         dto.getUserId().equals(getOrderListParamDto.getUserId())));
     }
 }
