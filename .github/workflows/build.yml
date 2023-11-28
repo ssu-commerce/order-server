@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature/#36-sonarqube
 
 jobs:
   build:
@@ -55,4 +56,4 @@ jobs:
           USERNAME: ${{secrets.USERNAME}}
           TOKEN: ${{secrets.TOKEN}}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Needed to get PR information, if any
-        run: ./gradlew :api:jib --image=ghcr.io/${{ github.repository }}:${{ github.sha }}
+        run: ./gradlew :api:jib

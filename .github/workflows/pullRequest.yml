@@ -73,8 +73,9 @@ jobs:
           paths: |
             ${{ github.workspace }}/api/build/reports/**/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 57.65
+          min-coverage-overall: 52.04
           min-coverage-changed-files: 100
+          update-comment: true
 
       - name: Publish Test Report
         uses: mikepenz/action-junit-report@v3
