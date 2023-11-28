@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/#36-sonarqube
 
 jobs:
   build:
