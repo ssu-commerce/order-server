@@ -154,3 +154,9 @@ jacocoTestCoverageVerification {
 		}
 	}
 }
+
+sonar {
+	properties {
+		property "sonar.projectKey", "order-server"
+	}
+}
