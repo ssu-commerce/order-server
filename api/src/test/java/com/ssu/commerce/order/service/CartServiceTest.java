@@ -115,20 +115,33 @@ public class CartServiceTest implements CartTestDataSupplier {
     void getCartItem_success() {
         CartItemParamDto paramDto = CartTestDataSupplier.getCartItemParamDto();
 
-        when(cartRepository.selectOrderCartPage(
-                argThat(dto1 ->
-                    dto1 != null && dto1.getUserId().equals(TEST_VAL_USER_ID)
-                ), eq(Pageable.unpaged())
-        )).thenReturn(CartTestDataSupplier.getSelectOrderCartDto());
+        when(cartRepository.findByUserId(TEST_VAL_USER_ID)).thenReturn(Optional.ofNullable(CartTestDataSupplier.getOrderCart()));
+        when(cartItemRepository.findByOrderCartId(TEST_VAL_ORDER_CART_ID, Pageable.unpaged())).thenReturn(CartTestDataSupplier.getOrderCartItemPage());
+
 
         Page<SelectCartItemParamDto> dto = cartService.getCartItem(paramDto);
 
         assertEquals(dto.getContent().get(0).getBookId(), TEST_VAL_BOOK_ID);
-        assertEquals(dto.getContent().size(), 1);
-        verify(cartRepository).selectOrderCartPage(
-                argThat(dto2 ->
-                        dto2 != null && dto2.getUserId().equals(TEST_VAL_USER_ID)
-                ), eq(Pageable.unpaged())
+        assertEquals(dto.getContent().get(1).getBookId(), TEST_VAL_ANOTHER_BOOK_ID);
+
+        verify(cartRepository).findByUserId(TEST_VAL_USER_ID);
+        verify(cartItemRepository).findByOrderCartId(TEST_VAL_ORDER_CART_ID, Pageable.unpaged());
+    }
+
+    @Test
+    void getCartItem_fail_NotFoundException() {
+        CartItemParamDto paramDto = CartTestDataSupplier.getCartItemParamDto();
+        NotFoundException exception = new NotFoundException(
+                String.format("cart not found; userId=%s", paramDto.getUserId()),
+                "ORDER_CART_002"
         );
+
+        when(cartRepository.findByUserId(TEST_VAL_USER_ID)).thenReturn(Optional.empty());
+
+        NotFoundException notFoundException = assertThrows(NotFoundException.class, () -> {
+            cartService.getCartItem(paramDto);
+        });
+
+        assertEquals(exception.getMessage(), notFoundException.getMessage());
     }
 }

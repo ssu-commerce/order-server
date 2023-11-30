@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper=false)
 public class OrderFailException extends SsuCommerceException {
 
     public OrderFailException(@Nullable String errorCode, @NotNull String message) {

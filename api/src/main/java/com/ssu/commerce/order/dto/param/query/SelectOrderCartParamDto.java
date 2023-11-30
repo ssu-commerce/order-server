@@ -7,6 +7,6 @@ import java.util.UUID;
 
 @Getter
 @Builder
-public class SelectOrderCartListParamDto {
+public class SelectOrderCartParamDto {
     private UUID userId;
 }
