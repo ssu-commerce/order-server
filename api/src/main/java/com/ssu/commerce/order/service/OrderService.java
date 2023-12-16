@@ -47,18 +47,10 @@ public class OrderService {
 
     public Order createOrder(List<CreateOrderRequestDto> requestDto, String accessToken, UUID userId) {
 
-        /*
-         *   TODO 도서 조회 후 빌릴 수 있는지 확인 못하면 error
-         *    현재 토큰 대신 userId로 보냄 이후에 수정 필요
-         *    rentalBook 메소드는 하나의 책에 대한 주문만 처리
-         *    장바구니(책 여러개)에 대한 처리는 다른 메소드에서 진행
-         */
-
         updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN_PROCESSING);
 
         /*
          *   TODO 결제 API 연동
-         *    현재는 임시 처리, 연동 후엔 proto 정의해서 사용
          */
 
         boolean paymentFail = false;
