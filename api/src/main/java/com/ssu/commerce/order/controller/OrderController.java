@@ -30,6 +30,7 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public CreateOrderResponseDto createOrder(
+            @NotNull @RequestBody final UUID receiverId,
             @NotNull @RequestBody final List<CreateOrderRequestDto> requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
@@ -40,7 +41,8 @@ public class OrderController {
                 orderService.createOrder(
                         requestDto,
                         principal.getAccessToken(),
-                        principal.getUserId()
+                        principal.getUserId(),
+                        receiverId
                 )
         );
     }

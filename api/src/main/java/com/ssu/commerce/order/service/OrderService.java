@@ -4,8 +4,11 @@ import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
+import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
+import com.ssu.commerce.order.dto.response.PaymentResponse;
 import com.ssu.commerce.order.exception.OrderFailException;
+import com.ssu.commerce.order.feign.PaymentFeignClient;
 import com.ssu.commerce.order.grpc.BookState;
 import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
@@ -31,6 +34,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final UpdateBookStateGrpcService updateBookStateGrpcService;
+    private final PaymentFeignClient paymentFeignClient;
 
     @Transactional
     public UUID updateOrderItem(UUID orderItemId) {
@@ -45,28 +49,45 @@ public class OrderService {
         return orderItem.getId();
     }
 
-    public Order createOrder(List<CreateOrderRequestDto> requestDto, String accessToken, UUID userId) {
+    public Order createOrder(List<CreateOrderRequestDto> requestDto, String accessToken, UUID userId, UUID receiverId) {
+
+        /*
+         *  TODO retry 정책 논의 필요
+         */
 
         updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN_PROCESSING);
 
-        /*
-         *   TODO 결제 API 연동
-         */
+        PaymentResponse paymentResponse = processPaymentRequest(userId, receiverId, requestDto, accessToken);
 
-        boolean paymentFail = false;
-        if (paymentFail) {
-            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
-        }
 
-        Order order = saveOrder(userId, accessToken, requestDto);
+        Order order = saveOrder(userId, accessToken, requestDto, paymentResponse.getTransactionId());
 
         updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN);
 
         return order;
     }
 
+    PaymentResponse processPaymentRequest(UUID userId, UUID receiverId, List<CreateOrderRequestDto> requestDto, String accessToken) {
+        try{
+            return paymentFeignClient.requestPayment(
+                    PaymentRequest.builder()
+                            .senderId(userId)
+                            .receiverId(receiverId)
+                            .amount(
+                                    requestDto.stream().mapToLong(CreateOrderRequestDto::getPrice).sum()
+                            )
+                            .build()
+            );
+        } catch (Exception e) {
+            log.error("Order save error : " + e.getMessage());
+            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
+
+            throw new OrderFailException("ORDER_002", "Payment error : " + e.getMessage());
+        }
+    }
+
     @Transactional
-    Order saveOrder(UUID userId, String accessToken, List<CreateOrderRequestDto> requestDto) {
+    Order saveOrder(UUID userId, String accessToken, List<CreateOrderRequestDto> requestDto, Long paymentId) {
         try {
             Order order = orderRepository.save(
                     Order.builder()
@@ -83,9 +104,8 @@ public class OrderService {
             return order;
         } catch (Exception e) {
             log.error("Order save error : " + e.getMessage());
-            /*
-             * TODO 결제 롤백 연동
-             */
+
+            paymentFeignClient.cancelPayment(paymentId);
             updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
             throw new OrderFailException("ORDER_001", "Order save error : " + e.getMessage());
         }

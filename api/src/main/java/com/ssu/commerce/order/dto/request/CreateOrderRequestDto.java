@@ -18,4 +18,5 @@ public class CreateOrderRequestDto {
     private UUID bookId;
     private LocalDateTime startedAt;
     private LocalDateTime endAt;
+    private Long price;
 }
