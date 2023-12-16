@@ -4,7 +4,6 @@ import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
-import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.dto.response.PaymentResponse;
@@ -80,7 +79,7 @@ public class OrderService {
                             .build()
             );
         } catch (Exception e) {
-            log.error("Order save error : " + e.getMessage());
+            log.error("Payment error : " + e.getMessage());
             updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
 
             throw new OrderFailException("ORDER_002", "Payment error : " + e.getMessage());

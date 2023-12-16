@@ -2,11 +2,17 @@ package com.ssu.commerce.order.supplier;
 
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.core.security.user.UserRole;
+import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
+import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
+import com.ssu.commerce.order.dto.response.PaymentResponse;
 import com.ssu.commerce.order.model.Order;
+import com.ssu.commerce.order.model.OrderItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
@@ -29,6 +35,7 @@ public interface OrderTestDataSupplier {
 
     Long TEST_VAL_BOOK_PRICE = 10000L;
     Long TEST_VAL_ANOTHER_BOOK_PRICE = 100000L;
+    Long TEST_VAL_PAYMENT_ID = 1234567654321L;
 
     static CreateOrderRequestDto getCreateOrderRequestDto() {
         return CreateOrderRequestDto.builder()
@@ -106,4 +113,52 @@ public interface OrderTestDataSupplier {
                 .build();
     }
 
+    static Page<OrderListParamDto> getOrderListParamDtoPage() {
+        return new PageImpl<>(
+                Arrays.asList(
+                        OrderListParamDto.builder()
+                                .id(TEST_VAL_ORDER_ID)
+                                .orderedAt(TEST_VAL_ORDERED_AT)
+                                .userId(TEST_VAL_USER_ID)
+                                .build()
+                )
+        );
+    }
+
+    static Page<Order> getOrderPage() {
+        return new PageImpl<>(
+                Arrays.asList(
+                        Order.builder()
+                                .id(TEST_VAL_ORDER_ID)
+                                .userId(TEST_VAL_USER_ID)
+                                .orderedAt(TEST_VAL_ORDERED_AT)
+                                .build()
+                )
+        );
+    }
+
+    static OrderItem getOrderItem() {
+        return OrderItem.builder()
+                .id(TEST_VAL_ORDER_ITEM_ID)
+                .orderState(OrderState.REGISTERED)
+                .bookId(TEST_VAL_BOOK_ID)
+                .orderId(TEST_VAL_ORDER_ID)
+                .startedAt(TEST_VAL_STARTED_AT)
+                .endAt(TEST_VAL_END_AT)
+                .build();
+    }
+
+    static PaymentResponse getPaymentResponse() {
+        return PaymentResponse.builder()
+                .transactionId(TEST_VAL_PAYMENT_ID)
+                .build();
+    }
+
+    static PaymentRequest getPaymentRequest() {
+        return PaymentRequest.builder()
+                .senderId(TEST_VAL_USER_ID)
+                .receiverId(TEST_VAL_RECEIVER_ID)
+                .amount(TEST_VAL_BOOK_PRICE)
+                .build();
+    }
 }

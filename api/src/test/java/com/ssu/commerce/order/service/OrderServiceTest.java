@@ -2,8 +2,11 @@ package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
+import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
+import com.ssu.commerce.order.dto.response.PaymentResponse;
 import com.ssu.commerce.order.exception.OrderFailException;
+import com.ssu.commerce.order.feign.PaymentFeignClient;
 import com.ssu.commerce.order.grpc.BookState;
 import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
@@ -21,13 +24,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
@@ -50,34 +53,40 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
     @Mock
     private UpdateBookStateGrpcService updateBookStateGrpcService;
-/*
+
+    @Mock
+    private PaymentFeignClient paymentFeignClient;
+
     @Test
     void creteOrder_success() {
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         Order savedOrder = OrderTestDataSupplier.getOrder();
+        PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
 
-        doReturn(savedOrder).when(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
+        doReturn(savedOrder).when(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
+        doReturn(paymentResponse).when(orderService).processPaymentRequest(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
 
-        Order resultOrder = orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
+        Order resultOrder = orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
 
         assertEquals(savedOrder, resultOrder);
-        verify(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
+        verify(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
+        verify(orderService).processPaymentRequest(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
     }
 
     @Test
     void creteOrder_fail_grpc_error_LoanProcessing() {
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto, TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
+                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
+            orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
         });
 
         assertEquals(grpcException, resultException);
@@ -85,30 +94,59 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
     @Test
     void creteOrder_fail_grpc_error_Loan() {
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
+        doReturn(paymentResponse).when(orderService).processPaymentRequest(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto, TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
+                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
         )).thenAnswer(invocation -> null);
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto, TEST_VAL_ACCESS_TOKEN, BookState.LOAN
+                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.createOrder(requestDto, TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID);
+            orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
         });
 
         assertEquals(grpcException, resultException);
     }
 
     @Test
+    void processPaymentRequest_success() {
+
+        when(paymentFeignClient.requestPayment(any(PaymentRequest.class))).thenReturn(OrderTestDataSupplier.getPaymentResponse());
+
+        PaymentResponse response = orderService.processPaymentRequest(
+                TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, OrderTestDataSupplier.getCreateOrderRequestDto().getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        assertEquals(TEST_VAL_PAYMENT_ID, response.getTransactionId());
+    }
+
+    @Test
+    void processPaymentRequest_fail() {
+        Exception paymentException = new Exception("TEST EXCEPTION : payment");
+        OrderFailException orderFailException = new OrderFailException("ORDER_002", "Order save error : " + paymentException.getMessage());
+
+        when(paymentFeignClient.requestPayment(any(PaymentRequest.class))).thenAnswer(invocation -> {
+            throw paymentException;
+        });
+
+        Exception resultException = assertThrows(OrderFailException.class, () -> {
+            orderService.processPaymentRequest(
+                    TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, OrderTestDataSupplier.getCreateOrderRequestDto().getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        });
+
+        assertEquals(orderFailException, resultException);
+    }
+
+    @Test
     void saveOrder_success() {
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         Order savedOrder = OrderTestDataSupplier.getOrder();
 
         when(orderRepository.save(
@@ -116,7 +154,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
                         order.getUserId().equals(TEST_VAL_USER_ID))
         )).thenReturn(savedOrder);
 
-        Order result = orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
+        Order result = orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
 
         assertEquals(savedOrder, result);
         verify(orderRepository).save(
@@ -127,7 +165,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
     @Test
     void saveOrder_fail_when_order_save() {
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
         Exception exception = new Exception("TEST EXCEPTION : save order");
         OrderFailException orderFailException = new OrderFailException("ORDER_001", "Order save error : " + exception.getMessage());
@@ -139,7 +177,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
+            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
         });
 
         assertEquals(orderFailException, resultException);
@@ -148,7 +186,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
     @Test
     void saveOrder_fail_when_order_item_save() {
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         Order savedOrder = OrderTestDataSupplier.getOrder();
 
         Exception exception = new Exception("TEST EXCEPTION : save order item");
@@ -161,7 +199,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
         when(orderItemRepository.saveAll(
                 argThat(list -> list.equals(
-                        requestDto.stream().map(req ->
+                        requestDto.getOrderInfo().stream().map(req ->
                                 new OrderItem(req, TEST_VAL_USER_ID)).collect(Collectors.toList())
                 ))
         )).thenAnswer(invocation -> {
@@ -169,7 +207,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto);
+            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
         });
 
         assertEquals(orderFailException, resultException);
@@ -217,5 +255,5 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         assertEquals(notFoundException.getMessage(), resultException.getMessage());
-    }*/
+    }
 }

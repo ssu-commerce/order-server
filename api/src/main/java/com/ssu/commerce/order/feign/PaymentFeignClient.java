@@ -18,5 +18,5 @@ public interface PaymentFeignClient {
     PaymentResponse requestPayment(@RequestBody PaymentRequest paymentRequest);
 
     @PostMapping("/payment/{transactionId}")
-    void cancelPayment(@PathVariable Long transactionId);
+    void cancelPayment(@PathVariable(name = "transactionId") Long transactionId);
 }
