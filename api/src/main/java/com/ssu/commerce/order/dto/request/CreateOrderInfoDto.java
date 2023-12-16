@@ -6,7 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -14,7 +14,9 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class CreateOrderRequestDto {
-    private UUID receiverId;
-    private List<CreateOrderInfoDto> orderInfo;
+public class CreateOrderInfoDto {
+    private UUID bookId;
+    private LocalDateTime startedAt;
+    private LocalDateTime endAt;
+    private Long price;
 }

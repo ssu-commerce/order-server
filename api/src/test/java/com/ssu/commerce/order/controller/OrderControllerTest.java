@@ -27,11 +27,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -60,9 +58,9 @@ class OrderControllerTest implements OrderTestDataSupplier {
     @Test
     void createOrder_success() throws Exception {
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
-        List<CreateOrderRequestDto> requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
+        CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
-        when(orderService.createOrder(requestDto, principal.getAccessToken(), principal.getUserId())).thenReturn(OrderTestDataSupplier.getOrder());
+        when(orderService.createOrder(requestDto.getOrderInfo(), principal.getAccessToken(), principal.getUserId(), TEST_VAL_RECEIVER_ID)).thenReturn(OrderTestDataSupplier.getOrder());
 
         mockMvc.perform(post("/api/v1/order")
                         .content(objectMapper.writeValueAsString(requestDto))
@@ -72,7 +70,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
 
-        verify(orderService).createOrder(eq(requestDto), eq(principal.getAccessToken()), eq(principal.getUserId()));
+        verify(orderService).createOrder(eq(requestDto.getOrderInfo()), eq(principal.getAccessToken()), eq(principal.getUserId()), eq(TEST_VAL_RECEIVER_ID));
     }
 
     @Test

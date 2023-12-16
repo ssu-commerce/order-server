@@ -1,5 +1,7 @@
 package com.ssu.commerce.order.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -30,8 +33,7 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public CreateOrderResponseDto createOrder(
-            @NotNull @RequestBody final UUID receiverId,
-            @NotNull @RequestBody final List<CreateOrderRequestDto> requestDto,
+            @NotNull @RequestBody final CreateOrderRequestDto requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
 
@@ -39,10 +41,10 @@ public class OrderController {
 
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.createOrder(
-                        requestDto,
+                        requestDto.getOrderInfo(),
                         principal.getAccessToken(),
                         principal.getUserId(),
-                        receiverId
+                        requestDto.getReceiverId()
                 )
         );
     }

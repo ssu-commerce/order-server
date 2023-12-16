@@ -3,6 +3,7 @@ package com.ssu.commerce.order.service;
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
+import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
@@ -49,32 +50,32 @@ public class OrderService {
         return orderItem.getId();
     }
 
-    public Order createOrder(List<CreateOrderRequestDto> requestDto, String accessToken, UUID userId, UUID receiverId) {
+    public Order createOrder(List<CreateOrderInfoDto> orderInfoDto, String accessToken, UUID userId, UUID receiverId) {
 
         /*
          *  TODO retry 정책 논의 필요
          */
 
-        updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN_PROCESSING);
+        updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN_PROCESSING);
 
-        PaymentResponse paymentResponse = processPaymentRequest(userId, receiverId, requestDto, accessToken);
+        PaymentResponse paymentResponse = processPaymentRequest(userId, receiverId, orderInfoDto, accessToken);
 
 
-        Order order = saveOrder(userId, accessToken, requestDto, paymentResponse.getTransactionId());
+        Order order = saveOrder(userId, accessToken, orderInfoDto, paymentResponse.getTransactionId());
 
-        updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.LOAN);
+        updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN);
 
         return order;
     }
 
-    PaymentResponse processPaymentRequest(UUID userId, UUID receiverId, List<CreateOrderRequestDto> requestDto, String accessToken) {
+    PaymentResponse processPaymentRequest(UUID userId, UUID receiverId, List<CreateOrderInfoDto> requestDto, String accessToken) {
         try{
             return paymentFeignClient.requestPayment(
                     PaymentRequest.builder()
                             .senderId(userId)
                             .receiverId(receiverId)
                             .amount(
-                                    requestDto.stream().mapToLong(CreateOrderRequestDto::getPrice).sum()
+                                    requestDto.stream().mapToLong(CreateOrderInfoDto::getPrice).sum()
                             )
                             .build()
             );
@@ -87,7 +88,7 @@ public class OrderService {
     }
 
     @Transactional
-    Order saveOrder(UUID userId, String accessToken, List<CreateOrderRequestDto> requestDto, Long paymentId) {
+    Order saveOrder(UUID userId, String accessToken, List<CreateOrderInfoDto> requestDto, Long paymentId) {
         try {
             Order order = orderRepository.save(
                     Order.builder()

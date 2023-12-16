@@ -1,5 +1,6 @@
 package com.ssu.commerce.order.grpc;
 
+import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
@@ -12,7 +13,7 @@ public class UpdateBookStateGrpcService {
     @GrpcClient("updateBookState")
     private UpdateBookStateGrpc.UpdateBookStateBlockingStub updateBookStateBlockingStub;
 
-    public UpdateBookStateResponse sendMessageToUpdateBookState(final List<CreateOrderRequestDto> requestDto, String accessToken, BookState bookState) {
+    public UpdateBookStateResponse sendMessageToUpdateBookState(final List<CreateOrderInfoDto> requestDto, String accessToken, BookState bookState) {
 
         return updateBookStateBlockingStub.updateBookState(
                 UpdateBookStateRequest.newBuilder()
