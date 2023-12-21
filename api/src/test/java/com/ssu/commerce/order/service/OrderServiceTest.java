@@ -64,13 +64,13 @@ class OrderServiceTest implements OrderTestDataSupplier {
         PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
 
         doReturn(savedOrder).when(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
-        doReturn(paymentResponse).when(orderService).processPaymentRequest(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        doReturn(paymentResponse).when(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
 
         Order resultOrder = orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
 
         assertEquals(savedOrder, resultOrder);
         verify(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
-        verify(orderService).processPaymentRequest(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        verify(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
     }
 
     @Test
@@ -99,7 +99,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
-        doReturn(paymentResponse).when(orderService).processPaymentRequest(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        doReturn(paymentResponse).when(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
                 requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
         )).thenAnswer(invocation -> null);
@@ -118,17 +118,17 @@ class OrderServiceTest implements OrderTestDataSupplier {
     }
 
     @Test
-    void processPaymentRequest_success() {
+    void requestPayment_success() {
 
         when(paymentFeignClient.requestPayment(any(PaymentRequest.class))).thenReturn(OrderTestDataSupplier.getPaymentResponse());
 
-        PaymentResponse response = orderService.processPaymentRequest(
+        PaymentResponse response = orderService.requestPayment(
                 TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, OrderTestDataSupplier.getCreateOrderRequestDto().getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
         assertEquals(TEST_VAL_PAYMENT_ID, response.getTransactionId());
     }
 
     @Test
-    void processPaymentRequest_fail() {
+    void requestPayment_fail() {
         Exception paymentException = new Exception("TEST EXCEPTION : payment");
         OrderFailException orderFailException = new OrderFailException("ORDER_002", "Order save error : " + paymentException.getMessage());
 
@@ -137,7 +137,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(OrderFailException.class, () -> {
-            orderService.processPaymentRequest(
+            orderService.requestPayment(
                     TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, OrderTestDataSupplier.getCreateOrderRequestDto().getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
         });
 

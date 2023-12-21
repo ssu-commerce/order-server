@@ -57,7 +57,7 @@ public class OrderService {
 
         updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN_PROCESSING);
 
-        PaymentResponse paymentResponse = processPaymentRequest(userId, receiverId, orderInfoDto, accessToken);
+        PaymentResponse paymentResponse = requestPayment(userId, receiverId, orderInfoDto, accessToken);
 
 
         Order order = saveOrder(userId, accessToken, orderInfoDto, paymentResponse.getTransactionId());
@@ -67,7 +67,7 @@ public class OrderService {
         return order;
     }
 
-    PaymentResponse processPaymentRequest(UUID userId, UUID receiverId, List<CreateOrderInfoDto> requestDto, String accessToken) {
+    PaymentResponse requestPayment(UUID userId, UUID receiverId, List<CreateOrderInfoDto> requestDto, String accessToken) {
         try{
             return paymentFeignClient.requestPayment(
                     PaymentRequest.builder()
