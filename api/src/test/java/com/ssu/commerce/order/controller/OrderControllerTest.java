@@ -29,7 +29,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collections;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -60,7 +59,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
-        when(orderService.createOrder(requestDto.getOrderInfo(), principal.getAccessToken(), principal.getUserId(), TEST_VAL_RECEIVER_ID)).thenReturn(OrderTestDataSupplier.getOrder());
+        when(orderService.createOrder(requestDto, principal)).thenReturn(OrderTestDataSupplier.getOrder());
 
         mockMvc.perform(post("/api/v1/order")
                         .content(objectMapper.writeValueAsString(requestDto))
@@ -70,7 +69,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
 
-        verify(orderService).createOrder(eq(requestDto.getOrderInfo()), eq(principal.getAccessToken()), eq(principal.getUserId()), eq(TEST_VAL_RECEIVER_ID));
+        verify(orderService).createOrder(eq(requestDto), eq(principal));
     }
 
     @Test

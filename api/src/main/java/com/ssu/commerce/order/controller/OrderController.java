@@ -37,10 +37,8 @@ public class OrderController {
 
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.createOrder(
-                        requestDto.getOrderInfo(),
-                        principal.getAccessToken(),
-                        principal.getUserId(),
-                        requestDto.getReceiverId()
+                        requestDto,
+                        principal
                 )
         );
     }

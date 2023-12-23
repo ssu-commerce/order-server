@@ -1,6 +1,7 @@
 package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
+import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
@@ -62,11 +63,12 @@ class OrderServiceTest implements OrderTestDataSupplier {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         Order savedOrder = OrderTestDataSupplier.getOrder();
         PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
+        SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
 
         doReturn(savedOrder).when(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
         doReturn(paymentResponse).when(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
 
-        Order resultOrder = orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
+        Order resultOrder = orderService.createOrder(requestDto, principal);
 
         assertEquals(savedOrder, resultOrder);
         verify(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
@@ -76,7 +78,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void creteOrder_fail_grpc_error_LoanProcessing() {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-
+        SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         Exception grpcException = new Exception("TEST EXCEPTION");
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
@@ -86,7 +88,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
+            orderService.createOrder(requestDto, principal);
         });
 
         assertEquals(grpcException, resultException);
@@ -96,6 +98,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
     void creteOrder_fail_grpc_error_Loan() {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
         PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
+        SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
@@ -111,7 +114,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.createOrder(requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID);
+            orderService.createOrder(requestDto, principal);
         });
 
         assertEquals(grpcException, resultException);

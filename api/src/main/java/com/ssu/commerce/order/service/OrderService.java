@@ -1,9 +1,11 @@
 package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
+import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
+import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.dto.response.PaymentResponse;
@@ -49,18 +51,21 @@ public class OrderService {
         return orderItem.getId();
     }
 
-    public Order createOrder(List<CreateOrderInfoDto> orderInfoDto, String accessToken, UUID userId, UUID receiverId) {
+    public Order createOrder(CreateOrderRequestDto requestDto, SsuCommerceAuthenticatedPrincipal principal) {
 
         /*
          *  TODO retry 정책 논의 필요
          */
 
+        List<CreateOrderInfoDto> orderInfoDto = requestDto.getOrderInfo();
+        String accessToken = principal.getAccessToken();
+
         updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN_PROCESSING);
 
-        PaymentResponse paymentResponse = requestPayment(userId, receiverId, orderInfoDto, accessToken);
+        PaymentResponse paymentResponse = requestPayment(principal.getUserId(), requestDto.getReceiverId(), orderInfoDto, accessToken);
 
 
-        Order order = saveOrder(userId, accessToken, orderInfoDto, paymentResponse.getTransactionId());
+        Order order = saveOrder(principal.getUserId(), accessToken, orderInfoDto, paymentResponse.getTransactionId());
 
         updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN);
 
