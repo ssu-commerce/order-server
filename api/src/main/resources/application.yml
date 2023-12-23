@@ -35,4 +35,6 @@ logging:
         orm:
           jpa: debug
 
-
+feign:
+  client:
+    url: paymentServer

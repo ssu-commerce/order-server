@@ -7,12 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "paymentFeignClient", url = "http://localhost:8082/point")
+@FeignClient(name = "paymentFeignClient", url = "${feign.client.url}")
 public interface PaymentFeignClient {
-
-    /*
-     *      TODO configuration 설정 및 url 설정
-     */
 
     @PostMapping("/payment")
     PaymentResponse requestPayment(@RequestBody PaymentRequest paymentRequest);
