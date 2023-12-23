@@ -6,6 +6,7 @@ import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.dto.response.PaymentResponse;
+import com.ssu.commerce.order.exception.OrderErrorCode;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.feign.PaymentFeignClient;
 import com.ssu.commerce.order.grpc.BookState;
@@ -133,7 +134,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void requestPayment_fail() {
         Exception paymentException = new Exception("TEST EXCEPTION : payment");
-        OrderFailException orderFailException = new OrderFailException("ORDER_002", "Order save error : " + paymentException.getMessage());
+        OrderFailException orderFailException = new OrderFailException(OrderErrorCode.PAYMENT, "Order save error : " + paymentException.getMessage());
 
         when(paymentFeignClient.requestPayment(any(PaymentRequest.class))).thenAnswer(invocation -> {
             throw paymentException;
@@ -171,7 +172,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
 
         Exception exception = new Exception("TEST EXCEPTION : save order");
-        OrderFailException orderFailException = new OrderFailException("ORDER_001", "Order save error : " + exception.getMessage());
+        OrderFailException orderFailException = new OrderFailException(OrderErrorCode.SAVE, "Order save error : " + exception.getMessage());
 
         when(orderRepository.save(
                 argThat(order1 -> order1.getUserId().equals(TEST_VAL_USER_ID))
@@ -193,8 +194,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Order savedOrder = OrderTestDataSupplier.getOrder();
 
         Exception exception = new Exception("TEST EXCEPTION : save order item");
-        OrderFailException orderFailException = new OrderFailException("ORDER_001", "Order save error : " + exception.getMessage());
-
+        OrderFailException orderFailException = new OrderFailException(OrderErrorCode.SAVE, "Order save error : " + exception.getMessage());
 
         when(orderRepository.save(
                 argThat(order1 -> order1.getUserId().equals(TEST_VAL_USER_ID))

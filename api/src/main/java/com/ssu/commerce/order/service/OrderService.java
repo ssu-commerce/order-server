@@ -9,6 +9,7 @@ import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.dto.response.PaymentResponse;
+import com.ssu.commerce.order.exception.OrderErrorCode;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.feign.PaymentFeignClient;
 import com.ssu.commerce.order.grpc.BookState;
@@ -87,7 +88,7 @@ public class OrderService {
             log.error("Payment error : " + e.getMessage());
             updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
 
-            throw new OrderFailException("ORDER_002", "Payment error : " + e.getMessage());
+            throw new OrderFailException(OrderErrorCode.PAYMENT, "Payment error : " + e.getMessage());
         }
     }
 
@@ -112,7 +113,7 @@ public class OrderService {
 
             paymentFeignClient.cancelPayment(paymentId);
             updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
-            throw new OrderFailException("ORDER_001", "Order save error : " + e.getMessage());
+            throw new OrderFailException(OrderErrorCode.SAVE, "Order save error : " + e.getMessage());
         }
     }
 
