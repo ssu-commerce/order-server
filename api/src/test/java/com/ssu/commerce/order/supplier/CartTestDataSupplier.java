@@ -5,7 +5,6 @@ import com.ssu.commerce.core.security.user.UserRole;
 import com.ssu.commerce.order.dto.param.CartItemParamDto;
 import com.ssu.commerce.order.dto.param.CreateCartItemParamDto;
 import com.ssu.commerce.order.dto.param.SelectCartItemParamDto;
-import com.ssu.commerce.order.dto.param.SelectOrderCartDto;
 import com.ssu.commerce.order.dto.request.CreateCartItemRequestDto;
 import com.ssu.commerce.order.model.OrderCart;
 import com.ssu.commerce.order.model.OrderCartItem;
@@ -83,27 +82,6 @@ public interface CartTestDataSupplier {
                 .userId(TEST_VAL_USER_ID)
                 .pageable(Pageable.unpaged())
                 .build();
-    }
-    static Page<SelectOrderCartDto> getSelectOrderCartDto() {
-        return new PageImpl<>(
-                Arrays.asList(
-                        SelectOrderCartDto.builder()
-                                .orderCart(
-                                        OrderCart.builder()
-                                                .id(TEST_VAL_ORDER_CART_ID)
-                                                .userId(TEST_VAL_USER_ID)
-                                                .build()
-                                )
-                                .orderCartItemList(
-                                        OrderCartItem.builder()
-                                                .orderCartId(TEST_VAL_ORDER_CART_ID)
-                                                .bookId(TEST_VAL_BOOK_ID)
-                                                .addedAt(LocalDateTime.now())
-                                                .build()
-                                )
-                                .build()
-                )
-        );
     }
 
     static Page<OrderCartItem> getOrderCartItemPage() {

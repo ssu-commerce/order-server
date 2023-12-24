@@ -1,6 +1,7 @@
 package com.ssu.commerce.order.model;
 
 import com.ssu.commerce.order.constant.OrderState;
+import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,7 +42,7 @@ public class OrderItem {
     @Column(name = "end_at")
     private LocalDateTime endAt;
 
-    public OrderItem(CreateOrderRequestDto req, UUID orderId) {
+    public OrderItem(CreateOrderInfoDto req, UUID orderId) {
         bookId = req.getBookId();
         orderState = OrderState.REGISTERED;
         startedAt = req.getStartedAt();

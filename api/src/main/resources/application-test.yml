@@ -23,3 +23,7 @@ springdoc:
 logging:
   level:
     p6spy: info
+
+feign:
+  client:
+    url: http://localhost:8082

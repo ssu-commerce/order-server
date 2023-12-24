@@ -16,7 +16,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.UUID;
 
 @Slf4j
@@ -30,7 +29,7 @@ public class OrderController {
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public CreateOrderResponseDto createOrder(
-            @NotNull @RequestBody final List<CreateOrderRequestDto> requestDto,
+            @NotNull @RequestBody final CreateOrderRequestDto requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
 
@@ -39,8 +38,7 @@ public class OrderController {
         return OrderResponseDtoMapper.INSTANCE.map(
                 orderService.createOrder(
                         requestDto,
-                        principal.getAccessToken(),
-                        principal.getUserId()
+                        principal
                 )
         );
     }

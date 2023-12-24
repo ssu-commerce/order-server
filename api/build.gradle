@@ -70,6 +70,10 @@ dependencies {
 	// LocalDateTime serialize
 	implementation group: 'com.fasterxml.jackson.datatype', name: 'jackson-datatype-jsr310', version: '2.12.5'
 	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	// feign client
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-openfeign', version: '3.1.1'
 }
 
 def querydslDir = "$buildDir/generated/querydsl"

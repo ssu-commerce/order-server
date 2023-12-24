@@ -4,17 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
-import java.util.List;
 import java.util.UUID;
 
-@Getter
-@Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@Builder
+@Getter
 @EqualsAndHashCode
-public class CreateOrderRequestDto {
+public class PaymentRequest {
+    private UUID senderId;
     private UUID receiverId;
-    private List<CreateOrderInfoDto> orderInfo;
+    private Long amount;
 }
