@@ -36,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -85,7 +86,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Exception grpcException = new Exception("TEST EXCEPTION");
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
+                OrderTestDataSupplier.getUpdateBookStateLoanProcessingParamDto(requestDto.getOrderInfo())
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
@@ -100,18 +101,16 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void creteOrder_fail_grpc_error_Loan() {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-        PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
-        doReturn(paymentResponse).when(orderService).requestPayment(requestDto, principal);
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
+                OrderTestDataSupplier.getUpdateBookStateLoanProcessingParamDto(requestDto.getOrderInfo())
         )).thenAnswer(invocation -> null);
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN
+                OrderTestDataSupplier.getUpdateBookStateLoanParamDto(requestDto.getOrderInfo())
         )).thenAnswer(invocation -> {
             throw grpcException;
         });

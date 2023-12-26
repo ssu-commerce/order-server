@@ -5,11 +5,12 @@ import com.ssu.commerce.core.security.user.UserRole;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
+import com.ssu.commerce.order.dto.param.UpdateBookStateParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
-import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.dto.response.PaymentResponse;
+import com.ssu.commerce.order.grpc.BookState;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
 import org.springframework.data.domain.Page;
@@ -57,29 +58,9 @@ public interface OrderTestDataSupplier {
                                         .price(TEST_VAL_ANOTHER_BOOK_PRICE)
                                         .build()
                         )
-                )
-                .build();
-    }
-
-    static CreateOrderRequestDto getCreateOrderRequestDto_ReceiverNull() {
-        return CreateOrderRequestDto.builder()
-                .orderInfo(
-                        Arrays.asList(
-                                CreateOrderInfoDto.builder()
-                                        .bookId(TEST_VAL_BOOK_ID)
-                                        .startedAt(LocalDateTime.now())
-                                        .endAt(LocalDateTime.now().plusDays(10))
-                                        .price(TEST_VAL_BOOK_PRICE)
-                                        .build(),
-                                CreateOrderInfoDto.builder()
-                                        .bookId(TEST_VAL_ANOTHER_BOOK_ID)
-                                        .startedAt(LocalDateTime.now())
-                                        .endAt(LocalDateTime.now().plusMonths(1))
-                                        .price(TEST_VAL_ANOTHER_BOOK_PRICE)
-                                        .build()
-                        )
                 ).build();
     }
+
 
     static Order getOrder() {
         return Order.builder()
@@ -156,20 +137,28 @@ public interface OrderTestDataSupplier {
                 .build();
     }
 
-    static PaymentRequest getPaymentRequest() {
-        return PaymentRequest.builder()
-                .senderId(TEST_VAL_USER_ID)
-                .receiverId(TEST_VAL_RECEIVER_ID)
-                .amount(TEST_VAL_BOOK_PRICE)
-                .build();
-    }
-
     static SaveOrderParamDto getSaveOrderParamDto(List<CreateOrderInfoDto> dto) {
         return SaveOrderParamDto.builder()
                 .userId(TEST_VAL_USER_ID)
                 .accessToken(TEST_VAL_ACCESS_TOKEN)
                 .requestDto(dto)
                 .paymentId(TEST_VAL_PAYMENT_ID)
+                .build();
+    }
+
+    static UpdateBookStateParamDto getUpdateBookStateLoanProcessingParamDto(List<CreateOrderInfoDto> dto) {
+        return UpdateBookStateParamDto.builder()
+                .createOrderInfoDto(dto)
+                .accessToken(TEST_VAL_ACCESS_TOKEN)
+                .bookState(BookState.LOAN_PROCESSING)
+                .build();
+    }
+
+    static UpdateBookStateParamDto getUpdateBookStateLoanParamDto(List<CreateOrderInfoDto> dto) {
+        return UpdateBookStateParamDto.builder()
+                .createOrderInfoDto(dto)
+                .accessToken(TEST_VAL_ACCESS_TOKEN)
+                .bookState(BookState.LOAN_PROCESSING)
                 .build();
     }
 }

@@ -1,10 +1,9 @@
 package com.ssu.commerce.order.grpc;
 
-import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
+import com.ssu.commerce.order.dto.param.UpdateBookStateParamDto;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -12,14 +11,14 @@ public class UpdateBookStateGrpcService {
     @GrpcClient("updateBookState")
     private UpdateBookStateGrpc.UpdateBookStateBlockingStub updateBookStateBlockingStub;
 
-    public UpdateBookStateResponse sendMessageToUpdateBookState(final List<CreateOrderInfoDto> requestDto, String accessToken, BookState bookState) {
+    public UpdateBookStateResponse sendMessageToUpdateBookState(UpdateBookStateParamDto paramDto) {
 
         return updateBookStateBlockingStub.updateBookState(
                 UpdateBookStateRequest.newBuilder()
-                        .setToken(accessToken)
-                        .setBookState(bookState)
+                        .setToken(paramDto.getAccessToken())
+                        .setBookState(paramDto.getBookState())
                         .addAllId(
-                                requestDto.stream().map(
+                                paramDto.getCreateOrderInfoDto().stream().map(
                                         req -> req.getBookId().toString()
                                 ).collect(Collectors.toList()))
                         .build()

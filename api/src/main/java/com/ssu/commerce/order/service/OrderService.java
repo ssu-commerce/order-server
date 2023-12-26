@@ -5,6 +5,7 @@ import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
+import com.ssu.commerce.order.dto.param.UpdateBookStateParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
@@ -62,7 +63,12 @@ public class OrderService {
         List<CreateOrderInfoDto> orderInfoDto = requestDto.getOrderInfo();
         String accessToken = principal.getAccessToken();
 
-        updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN_PROCESSING);
+        updateBookStateGrpcService.sendMessageToUpdateBookState(
+                UpdateBookStateParamDto.builder()
+                        .createOrderInfoDto(orderInfoDto)
+                        .accessToken(accessToken)
+                        .bookState(BookState.LOAN_PROCESSING)
+                        .build());
 
         PaymentResponse paymentResponse = requestPayment(requestDto, principal);
 
@@ -75,7 +81,12 @@ public class OrderService {
                         .paymentId(paymentResponse.getTransactionId())
                         .build());
 
-        updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN);
+        updateBookStateGrpcService.sendMessageToUpdateBookState(
+                UpdateBookStateParamDto.builder()
+                        .createOrderInfoDto(orderInfoDto)
+                        .accessToken(accessToken)
+                        .bookState(BookState.LOAN)
+                        .build());
 
         return order;
     }
@@ -94,7 +105,12 @@ public class OrderService {
             );
         } catch (Exception e) {
             log.error("Payment error : " + e.getMessage());
-            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto.getOrderInfo(), principal.getAccessToken(), BookState.REGISTERED);
+            updateBookStateGrpcService.sendMessageToUpdateBookState(
+                    UpdateBookStateParamDto.builder()
+                            .createOrderInfoDto(requestDto.getOrderInfo())
+                            .accessToken(principal.getAccessToken())
+                            .bookState(BookState.REGISTERED)
+                            .build());
 
             throw new OrderFailException(OrderErrorCode.PAYMENT, "Payment error : " + e.getMessage());
         }
@@ -120,7 +136,14 @@ public class OrderService {
             log.error("Order save error : " + e.getMessage());
 
             paymentFeignClient.cancelPayment(saveOrderParamDto.getPaymentId());
-            updateBookStateGrpcService.sendMessageToUpdateBookState(saveOrderParamDto.getRequestDto(), saveOrderParamDto.getAccessToken(), BookState.REGISTERED);
+
+            updateBookStateGrpcService.sendMessageToUpdateBookState(
+                    UpdateBookStateParamDto.builder()
+                            .createOrderInfoDto(saveOrderParamDto.getRequestDto())
+                            .accessToken(saveOrderParamDto.getAccessToken())
+                            .bookState(BookState.REGISTERED)
+                            .build());
+
             throw new OrderFailException(OrderErrorCode.SAVE, "Order save error : " + e.getMessage());
         }
     }
