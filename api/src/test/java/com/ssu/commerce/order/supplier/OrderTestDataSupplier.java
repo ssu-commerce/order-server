@@ -4,6 +4,7 @@ import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.core.security.user.UserRole;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
+import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public interface OrderTestDataSupplier {
@@ -159,6 +161,15 @@ public interface OrderTestDataSupplier {
                 .senderId(TEST_VAL_USER_ID)
                 .receiverId(TEST_VAL_RECEIVER_ID)
                 .amount(TEST_VAL_BOOK_PRICE)
+                .build();
+    }
+
+    static SaveOrderParamDto getSaveOrderParamDto(List<CreateOrderInfoDto> dto) {
+        return SaveOrderParamDto.builder()
+                .userId(TEST_VAL_USER_ID)
+                .accessToken(TEST_VAL_ACCESS_TOKEN)
+                .requestDto(dto)
+                .paymentId(TEST_VAL_PAYMENT_ID)
                 .build();
     }
 }

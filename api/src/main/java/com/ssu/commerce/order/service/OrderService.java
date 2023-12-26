@@ -4,6 +4,7 @@ import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
+import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
@@ -63,56 +64,63 @@ public class OrderService {
 
         updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN_PROCESSING);
 
-        PaymentResponse paymentResponse = requestPayment(principal.getUserId(), requestDto.getReceiverId(), orderInfoDto, accessToken);
+        PaymentResponse paymentResponse = requestPayment(requestDto, principal);
 
 
-        Order order = saveOrder(principal.getUserId(), accessToken, orderInfoDto, paymentResponse.getTransactionId());
+        Order order = saveOrder(
+                SaveOrderParamDto.builder()
+                        .userId(principal.getUserId())
+                        .accessToken(accessToken)
+                        .requestDto(orderInfoDto)
+                        .paymentId(paymentResponse.getTransactionId())
+                        .build());
 
         updateBookStateGrpcService.sendMessageToUpdateBookState(orderInfoDto, accessToken, BookState.LOAN);
 
         return order;
     }
 
-    PaymentResponse requestPayment(UUID userId, UUID receiverId, List<CreateOrderInfoDto> requestDto, String accessToken) {
+    PaymentResponse requestPayment(CreateOrderRequestDto requestDto, SsuCommerceAuthenticatedPrincipal principal) {
         try{
             return paymentFeignClient.requestPayment(
                     PaymentRequest.builder()
-                            .senderId(userId)
-                            .receiverId(receiverId)
+                            .senderId(principal.getUserId())
+                            .receiverId(requestDto.getReceiverId())
                             .amount(
-                                    requestDto.stream().mapToLong(CreateOrderInfoDto::getPrice).sum()
+                                    requestDto.getOrderInfo()
+                                            .stream().mapToLong(CreateOrderInfoDto::getPrice).sum()
                             )
                             .build()
             );
         } catch (Exception e) {
             log.error("Payment error : " + e.getMessage());
-            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
+            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto.getOrderInfo(), principal.getAccessToken(), BookState.REGISTERED);
 
             throw new OrderFailException(OrderErrorCode.PAYMENT, "Payment error : " + e.getMessage());
         }
     }
 
     @Transactional
-    Order saveOrder(UUID userId, String accessToken, List<CreateOrderInfoDto> requestDto, Long paymentId) {
+    Order saveOrder(SaveOrderParamDto saveOrderParamDto) {
         try {
             Order order = orderRepository.save(
                     Order.builder()
                             .orderedAt(LocalDateTime.now())
-                            .userId(userId)
+                            .userId(saveOrderParamDto.getUserId())
                             .build()
             );
 
             orderItemRepository.saveAll(
-                    requestDto.stream().map(req ->
-                            new OrderItem(req, userId)).collect(Collectors.toList())
+                    saveOrderParamDto.getRequestDto().stream().map(req ->
+                            new OrderItem(req, saveOrderParamDto.getUserId())).collect(Collectors.toList())
             );
 
             return order;
         } catch (Exception e) {
             log.error("Order save error : " + e.getMessage());
 
-            paymentFeignClient.cancelPayment(paymentId);
-            updateBookStateGrpcService.sendMessageToUpdateBookState(requestDto, accessToken, BookState.REGISTERED);
+            paymentFeignClient.cancelPayment(saveOrderParamDto.getPaymentId());
+            updateBookStateGrpcService.sendMessageToUpdateBookState(saveOrderParamDto.getRequestDto(), saveOrderParamDto.getAccessToken(), BookState.REGISTERED);
             throw new OrderFailException(OrderErrorCode.SAVE, "Order save error : " + e.getMessage());
         }
     }

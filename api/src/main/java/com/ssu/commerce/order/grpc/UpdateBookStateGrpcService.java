@@ -1,7 +1,6 @@
 package com.ssu.commerce.order.grpc;
 
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
-import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
