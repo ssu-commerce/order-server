@@ -2,6 +2,7 @@ package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
+import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.request.PaymentRequest;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
@@ -35,6 +36,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -65,15 +67,16 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Order savedOrder = OrderTestDataSupplier.getOrder();
         PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
+        SaveOrderParamDto saveOrderParamDto = OrderTestDataSupplier.getSaveOrderParamDto(requestDto.getOrderInfo());
 
-        doReturn(savedOrder).when(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
-        doReturn(paymentResponse).when(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        doReturn(savedOrder).when(orderService).saveOrder(saveOrderParamDto);
+        doReturn(paymentResponse).when(orderService).requestPayment(requestDto, principal);
 
         Order resultOrder = orderService.createOrder(requestDto, principal);
 
         assertEquals(savedOrder, resultOrder);
-        verify(orderService).saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
-        verify(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+        verify(orderService).saveOrder(saveOrderParamDto);
+        verify(orderService).requestPayment(requestDto, principal);
     }
 
     @Test
@@ -83,7 +86,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         Exception grpcException = new Exception("TEST EXCEPTION");
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
+                OrderTestDataSupplier.getUpdateBookStateLoanProcessingParamDto(requestDto.getOrderInfo())
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
@@ -98,18 +101,16 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Test
     void creteOrder_fail_grpc_error_Loan() {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
-        PaymentResponse paymentResponse = OrderTestDataSupplier.getPaymentResponse();
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
-        doReturn(paymentResponse).when(orderService).requestPayment(TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN_PROCESSING
+                OrderTestDataSupplier.getUpdateBookStateLoanProcessingParamDto(requestDto.getOrderInfo())
         )).thenAnswer(invocation -> null);
 
         when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                requestDto.getOrderInfo(), TEST_VAL_ACCESS_TOKEN, BookState.LOAN
+                OrderTestDataSupplier.getUpdateBookStateLoanParamDto(requestDto.getOrderInfo())
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
@@ -127,7 +128,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         when(paymentFeignClient.requestPayment(any(PaymentRequest.class))).thenReturn(OrderTestDataSupplier.getPaymentResponse());
 
         PaymentResponse response = orderService.requestPayment(
-                TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, OrderTestDataSupplier.getCreateOrderRequestDto().getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+                OrderTestDataSupplier.getCreateOrderRequestDto(), OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal());
         assertEquals(TEST_VAL_PAYMENT_ID, response.getTransactionId());
     }
 
@@ -142,7 +143,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
         Exception resultException = assertThrows(OrderFailException.class, () -> {
             orderService.requestPayment(
-                    TEST_VAL_USER_ID, TEST_VAL_RECEIVER_ID, OrderTestDataSupplier.getCreateOrderRequestDto().getOrderInfo(), TEST_VAL_ACCESS_TOKEN);
+                    OrderTestDataSupplier.getCreateOrderRequestDto(), OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal());
         });
 
         assertEquals(orderFailException, resultException);
@@ -158,7 +159,9 @@ class OrderServiceTest implements OrderTestDataSupplier {
                         order.getUserId().equals(TEST_VAL_USER_ID))
         )).thenReturn(savedOrder);
 
-        Order result = orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
+        Order result = orderService.saveOrder(
+                OrderTestDataSupplier.getSaveOrderParamDto(requestDto.getOrderInfo())
+        );
 
         assertEquals(savedOrder, result);
         verify(orderRepository).save(
@@ -181,7 +184,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
+            orderService.saveOrder(OrderTestDataSupplier.getSaveOrderParamDto(requestDto.getOrderInfo()));
         });
 
         assertEquals(orderFailException, resultException);
@@ -210,7 +213,7 @@ class OrderServiceTest implements OrderTestDataSupplier {
         });
 
         Exception resultException = assertThrows(Exception.class, () -> {
-            orderService.saveOrder(TEST_VAL_USER_ID, TEST_VAL_ACCESS_TOKEN, requestDto.getOrderInfo(), TEST_VAL_PAYMENT_ID);
+            orderService.saveOrder(OrderTestDataSupplier.getSaveOrderParamDto(requestDto.getOrderInfo()));
         });
 
         assertEquals(orderFailException, resultException);
