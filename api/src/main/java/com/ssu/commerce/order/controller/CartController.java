@@ -51,7 +51,7 @@ public class CartController {
         log.debug("[createCartItem]requestDto={}", requestDto);
 
         return CreateCartItemResponseDto.builder()
-                .id(
+                .cartItemIds(
                         cartService.createCartItem(
                                 CreateCartItemParamDtoMapper.INSTANCE.map(requestDto),
                                 principal.getUserId()

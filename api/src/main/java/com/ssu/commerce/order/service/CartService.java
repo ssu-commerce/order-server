@@ -17,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +29,7 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
 
     @Transactional
-    public UUID createCartItem(
+    public List<UUID> createCartItem(
             @NonNull @Valid CreateCartItemParamDto paramDto,
             UUID userId
     ) {
@@ -41,13 +43,15 @@ public class CartService {
                         )
                 );
 
-        return cartItemRepository.save(
-                OrderCartItem.builder()
-                        .bookId(paramDto.getBookId())
-                        .orderCartId(orderCart.getId())
-                        .addedAt(LocalDateTime.now())
-                        .build()
-        ).getId();
+        return cartItemRepository.saveAll(
+                paramDto.getBookIds().stream().map(id ->
+                        OrderCartItem.builder()
+                                .bookId(id)
+                                .orderCartId(orderCart.getId())
+                                .addedAt(LocalDateTime.now())
+                                .build()
+                ).collect(Collectors.toList())
+        ).stream().map(OrderCartItem::getOrderCartId).collect(Collectors.toList());
     }
 
     @Transactional
