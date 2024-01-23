@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 public interface CartTestDataSupplier {
@@ -40,13 +42,13 @@ public interface CartTestDataSupplier {
 
     static CreateCartItemRequestDto getCreateCartItemRequestDto() {
         return CreateCartItemRequestDto.builder()
-                .bookId(TEST_VAL_BOOK_ID)
+                .bookIds(List.of(TEST_VAL_BOOK_ID))
                 .build();
     }
 
     static Page<SelectCartItemParamDto> getSelectCartItemParamDto() {
         return new PageImpl<>(
-                Arrays.asList(
+                Collections.singletonList(
                         SelectCartItemParamDto.builder()
                                 .bookId(TEST_VAL_BOOK_ID)
                                 .addedAt(LocalDateTime.now())
@@ -57,7 +59,7 @@ public interface CartTestDataSupplier {
 
     static CreateCartItemParamDto getCreateCartItemDto() {
         return CreateCartItemParamDto.builder()
-                .bookId(TEST_VAL_BOOK_ID)
+                .bookIds(List.of(TEST_VAL_BOOK_ID))
                 .build();
     }
 
@@ -66,6 +68,15 @@ public interface CartTestDataSupplier {
                 .id(TEST_VAL_ORDER_CART_ID)
                 .userId(TEST_VAL_USER_ID)
                 .build();
+    }
+
+    static List<OrderCartItem> getOrderCartItems() {
+        return Collections.singletonList(OrderCartItem.builder()
+                .id(TEST_VAL_CART_ITEM_ID)
+                .orderCartId(TEST_VAL_ORDER_CART_ID)
+                .addedAt(LocalDateTime.now())
+                .bookId(TEST_VAL_BOOK_ID)
+                .build());
     }
 
     static OrderCartItem getOrderCartItem() {

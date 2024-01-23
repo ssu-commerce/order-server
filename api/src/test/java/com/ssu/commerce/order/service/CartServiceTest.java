@@ -17,10 +17,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -44,19 +46,15 @@ public class CartServiceTest implements CartTestDataSupplier {
         OrderCart orderCart = CartTestDataSupplier.getOrderCart();
 
         when(cartRepository.findByUserId(TEST_VAL_USER_ID)).thenReturn(Optional.ofNullable(orderCart));
-        when(cartItemRepository.save(
-                argThat(cartItem -> cartItem != null &&
-                        cartItem.getBookId().equals(TEST_VAL_BOOK_ID) && cartItem.getOrderCartId().equals(TEST_VAL_ORDER_CART_ID)
-        ))).thenReturn(CartTestDataSupplier.getOrderCartItem());
+        when(cartItemRepository.saveAll(any(List.class))).thenReturn(CartTestDataSupplier.getOrderCartItems());
 
-        UUID cartId = cartService.createCartItem(paramDto, TEST_VAL_USER_ID);
+        List<UUID> cartIds = cartService.createCartItem(paramDto, TEST_VAL_USER_ID);
 
-        assertEquals(TEST_VAL_CART_ITEM_ID, cartId);
+        assertEquals(1, cartIds.size());
+        assertEquals(TEST_VAL_ORDER_CART_ID, cartIds.get(0));
 
         verify(cartRepository).findByUserId(TEST_VAL_USER_ID);
-        verify(cartItemRepository).save(argThat(cartItem -> cartItem != null &&
-                cartItem.getBookId().equals(TEST_VAL_BOOK_ID) && cartItem.getOrderCartId().equals(TEST_VAL_ORDER_CART_ID)
-        ));
+        verify(cartItemRepository).saveAll(any(List.class));
     }
 
     @Test
@@ -68,20 +66,16 @@ public class CartServiceTest implements CartTestDataSupplier {
         when(cartRepository.save(
                 argThat(cart -> cart != null && cart.getUserId().equals(TEST_VAL_USER_ID)
         ))).thenReturn(orderCart);
-        when(cartItemRepository.save(
-                argThat(cartItem -> cartItem != null && cartItem.getBookId().equals(TEST_VAL_BOOK_ID)
-                        && cartItem.getOrderCartId().equals(TEST_VAL_ORDER_CART_ID)
-                ))).thenReturn(CartTestDataSupplier.getOrderCartItem());
+        when(cartItemRepository.saveAll(any(List.class))).thenReturn(CartTestDataSupplier.getOrderCartItems());
 
-        UUID cartId = cartService.createCartItem(paramDto, TEST_VAL_USER_ID);
+        List<UUID> cartIds = cartService.createCartItem(paramDto, TEST_VAL_USER_ID);
 
-        assertEquals(TEST_VAL_CART_ITEM_ID, cartId);
+        assertEquals(1, cartIds.size());
+        assertEquals(TEST_VAL_ORDER_CART_ID, cartIds.get(0));
 
         verify(cartRepository).findByUserId(TEST_VAL_USER_ID);
         verify(cartRepository).save(argThat(cart -> cart != null && cart.getUserId().equals(TEST_VAL_USER_ID)));
-        verify(cartItemRepository).save(argThat(cartItem -> cartItem != null &&
-                cartItem.getBookId().equals(TEST_VAL_BOOK_ID) && cartItem.getOrderCartId().equals(TEST_VAL_ORDER_CART_ID)
-        ));
+        verify(cartItemRepository).saveAll(any(List.class));
     }
 
     @Test

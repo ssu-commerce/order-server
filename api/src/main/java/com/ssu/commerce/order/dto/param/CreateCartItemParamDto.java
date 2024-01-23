@@ -5,6 +5,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 import java.util.UUID;
 
 @Getter
@@ -12,5 +13,5 @@ import java.util.UUID;
 @EqualsAndHashCode
 public class CreateCartItemParamDto {
     @NotEmpty
-    private UUID bookId;
+    private List<UUID> bookIds;
 }
