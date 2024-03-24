@@ -24,7 +24,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
 
     @Override
     public void setDataSource(@NotNull String s) {
-
+        this.dataSource = s;
     }
 
     @NotNull
@@ -35,7 +35,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
 
     @Override
     public void setDriverClassName(@NotNull String s) {
-
+        this.driverClassName = s;
     }
 
     @NotNull
@@ -46,7 +46,7 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
 
     @Override
     public void setPassword(@NotNull String s) {
-
+        this.password = s;
     }
 
     @NotNull
@@ -57,6 +57,6 @@ public class DataSourceProperties implements AbstractDataSourceProperties {
 
     @Override
     public void setUserId(@NotNull String s) {
-
+        this.userId = s;
     }
 }
