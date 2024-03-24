@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.dto.mapper.CreateCartItemParamDtoMapper;
-import com.ssu.commerce.order.dto.param.CartItemParamDto;
 import com.ssu.commerce.order.dto.request.CreateCartItemRequestDto;
 import com.ssu.commerce.order.service.CartService;
 import com.ssu.commerce.order.supplier.CartTestDataSupplier;
@@ -22,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -58,7 +59,7 @@ class CartControllerTest implements CartTestDataSupplier {
     void getCartItem_success() throws Exception {
 
         when(cartService.getCartItem(
-                argThat(dto -> dto instanceof CartItemParamDto && dto.getUserId().equals(TEST_VAL_USER_ID))
+                argThat(dto -> dto != null && dto.getUserId().equals(TEST_VAL_USER_ID))
         )).thenReturn(CartTestDataSupplier.getSelectCartItemParamDto());
 
         mockMvc.perform(get("/api/v1/cart")
@@ -66,7 +67,7 @@ class CartControllerTest implements CartTestDataSupplier {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
 
-        verify(cartService).getCartItem(argThat(dto -> dto instanceof CartItemParamDto && dto.getUserId().equals(TEST_VAL_USER_ID)));
+        verify(cartService).getCartItem(argThat(dto -> dto != null && dto.getUserId().equals(TEST_VAL_USER_ID)));
     }
 
     @Test
@@ -74,7 +75,7 @@ class CartControllerTest implements CartTestDataSupplier {
         CreateCartItemRequestDto requestDto = CartTestDataSupplier.getCreateCartItemRequestDto();
 
         when(cartService.createCartItem(
-                CreateCartItemParamDtoMapper.INSTANCE.map(requestDto), TEST_VAL_USER_ID)).thenReturn(TEST_VAL_CART_ITEM_ID);
+                CreateCartItemParamDtoMapper.INSTANCE.map(requestDto), TEST_VAL_USER_ID)).thenReturn(List.of(TEST_VAL_CART_ITEM_ID));
 
         mockMvc.perform(post("/api/v1/cart")
                         .content(objectMapper.writeValueAsString(
@@ -83,7 +84,8 @@ class CartControllerTest implements CartTestDataSupplier {
                         .with(csrf())
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_CART_ITEM_ID))));
+                .andExpect(jsonPath("$.cartItemIds", Matchers.equalTo(List.of(String.valueOf(TEST_VAL_CART_ITEM_ID)))));
+        
         verify(cartService).createCartItem(eq(CreateCartItemParamDtoMapper.INSTANCE.map(requestDto)), eq(TEST_VAL_USER_ID));
 
     }
