@@ -13,6 +13,8 @@ grpc:
     rollBackRental: *commonSettings
 
 spring:
+  application:
+    name: order
   jpa:
     hibernate:
       ddl-auto: update # test
