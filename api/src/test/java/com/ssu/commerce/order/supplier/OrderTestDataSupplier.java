@@ -123,7 +123,7 @@ public interface OrderTestDataSupplier {
     static OrderItem getOrderItem() {
         return OrderItem.builder()
                 .id(TEST_VAL_ORDER_ITEM_ID)
-                .orderState(OrderState.REGISTERED)
+                .orderState(OrderState.REQUESTED)
                 .bookId(TEST_VAL_BOOK_ID)
                 .orderId(TEST_VAL_ORDER_ID)
                 .startedAt(TEST_VAL_STARTED_AT)
