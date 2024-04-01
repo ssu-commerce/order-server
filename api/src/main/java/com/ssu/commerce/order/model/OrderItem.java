@@ -2,7 +2,6 @@ package com.ssu.commerce.order.model;
 
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
-import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,7 +43,7 @@ public class OrderItem {
 
     public OrderItem(CreateOrderInfoDto req, UUID orderId) {
         bookId = req.getBookId();
-        orderState = OrderState.REGISTERED;
+        orderState = OrderState.REQUESTED;
         startedAt = req.getStartedAt();
         endAt = req.getEndAt();
         this.orderId = orderId;
