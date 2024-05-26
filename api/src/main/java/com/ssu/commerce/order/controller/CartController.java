@@ -26,8 +26,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/cart")
 public class CartController {
-
     private final CartService cartService;
+
     @GetMapping
     public Page<CartItemResponseDto> getCartItem(
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true)  final SsuCommerceAuthenticatedPrincipal principal,
