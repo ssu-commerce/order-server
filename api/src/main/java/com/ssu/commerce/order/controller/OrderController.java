@@ -23,7 +23,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/order")
 public class OrderController {
-
     private final OrderService orderService;
 
     @PostMapping
@@ -32,7 +31,6 @@ public class OrderController {
             @NotNull @RequestBody final CreateOrderRequestDto requestDto,
             @NotNull @AuthenticationPrincipal @Parameter(hidden = true) final SsuCommerceAuthenticatedPrincipal principal
     ) {
-
         log.debug("[createOrder]requestDto={}", requestDto);
 
         return OrderResponseDtoMapper.INSTANCE.map(
