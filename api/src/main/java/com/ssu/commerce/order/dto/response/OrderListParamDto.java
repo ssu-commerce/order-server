@@ -21,7 +21,7 @@ public class OrderListParamDto {
     private UUID userId;
 
     public OrderListParamDto(Order order) {
-        id = order.getId();
+        id = order.getOrderId();
         orderedAt = order.getOrderedAt();
         userId = order.getUserId();
     }

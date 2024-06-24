@@ -47,7 +47,7 @@ public class CartService {
                 paramDto.getBookIds().stream().map(id ->
                         OrderCartItem.builder()
                                 .bookId(id)
-                                .orderCartId(orderCart.getId())
+                                .orderCartId(orderCart.getOrderCartId())
                                 .addedAt(LocalDateTime.now())
                                 .build()
                 ).collect(Collectors.toList())
@@ -62,7 +62,7 @@ public class CartService {
                         "ORDER_CART_001"
                 ));
         cartItemRepository.delete(orderCartItem);
-        return orderCartItem.getId();
+        return orderCartItem.getOrderCartItemId();
     }
 
     public Page<SelectCartItemParamDto> getCartItem(
@@ -75,7 +75,7 @@ public class CartService {
                         "ORDER_CART_002"
                 ));
 
-        Page<OrderCartItem> orderCartItems = cartItemRepository.findByOrderCartId(orderCart.getId(), paramDto.getPageable());
+        Page<OrderCartItem> orderCartItems = cartItemRepository.findByOrderCartId(orderCart.getOrderCartId(), paramDto.getPageable());
 
         return orderCartItems.map(
                 SelectOrderCartParamDtoMapper.INSTANCE::map

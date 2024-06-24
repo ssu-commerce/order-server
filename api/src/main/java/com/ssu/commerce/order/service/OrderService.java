@@ -50,7 +50,7 @@ public class OrderService {
 
         orderItem.updateOrderState(OrderState.RETURNED);
 
-        return orderItem.getId();
+        return orderItem.getOrderItemId();
     }
 
     public Order createOrder(CreateOrderRequestDto requestDto, SsuCommerceAuthenticatedPrincipal principal) {

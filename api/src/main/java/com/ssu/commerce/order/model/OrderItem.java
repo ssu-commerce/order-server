@@ -23,13 +23,13 @@ public class OrderItem {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "id", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @Column(name = "order_item_id", columnDefinition = "char(36)")
+    private UUID orderItemId;
 
-    @Column(name = "book_id", columnDefinition = "BINARY(16)")
+    @Column(name = "book_id", columnDefinition = "char(36)")
     private UUID bookId;
 
-    @Column(name = "order_id", columnDefinition = "BINARY(16)")
+    @Column(name = "order_id", columnDefinition = "char(36)")
     private UUID orderId;
 
     @Column(name = "order_state")
