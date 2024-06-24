@@ -67,7 +67,7 @@ class OrderControllerTest implements OrderTestDataSupplier {
                         .with(csrf())
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
+                .andExpect(jsonPath("$.orderId", Matchers.equalTo(String.valueOf(TEST_VAL_ORDER_ID))));
 
         verify(orderService).createOrder(eq(requestDto), eq(principal));
     }

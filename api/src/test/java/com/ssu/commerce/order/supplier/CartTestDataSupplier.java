@@ -65,14 +65,14 @@ public interface CartTestDataSupplier {
 
     static OrderCart getOrderCart() {
         return OrderCart.builder()
-                .id(TEST_VAL_ORDER_CART_ID)
+                .orderCartId(TEST_VAL_ORDER_CART_ID)
                 .userId(TEST_VAL_USER_ID)
                 .build();
     }
 
     static List<OrderCartItem> getOrderCartItems() {
         return Collections.singletonList(OrderCartItem.builder()
-                .id(TEST_VAL_CART_ITEM_ID)
+                .orderCartItemId(TEST_VAL_CART_ITEM_ID)
                 .orderCartId(TEST_VAL_ORDER_CART_ID)
                 .addedAt(LocalDateTime.now())
                 .bookId(TEST_VAL_BOOK_ID)
@@ -81,7 +81,7 @@ public interface CartTestDataSupplier {
 
     static OrderCartItem getOrderCartItem() {
         return OrderCartItem.builder()
-                .id(TEST_VAL_CART_ITEM_ID)
+                .orderCartItemId(TEST_VAL_CART_ITEM_ID)
                 .orderCartId(TEST_VAL_ORDER_CART_ID)
                 .addedAt(LocalDateTime.now())
                 .bookId(TEST_VAL_BOOK_ID)
@@ -99,13 +99,13 @@ public interface CartTestDataSupplier {
         return new PageImpl<>(
                 Arrays.asList(
                         OrderCartItem.builder()
-                                .id(TEST_VAL_CART_ITEM_ID)
+                                .orderCartItemId(TEST_VAL_CART_ITEM_ID)
                                 .orderCartId(TEST_VAL_ORDER_CART_ID)
                                 .addedAt(LocalDateTime.now())
                                 .bookId(TEST_VAL_BOOK_ID)
                                 .build(),
                         OrderCartItem.builder()
-                                .id(TEST_VAL_ANOTHER_CART_ITEM_ID)
+                                .orderCartItemId(TEST_VAL_ANOTHER_CART_ITEM_ID)
                                 .orderCartId(TEST_VAL_ORDER_CART_ID)
                                 .addedAt(LocalDateTime.now().plusMinutes(1))
                                 .bookId(TEST_VAL_ANOTHER_BOOK_ID)
