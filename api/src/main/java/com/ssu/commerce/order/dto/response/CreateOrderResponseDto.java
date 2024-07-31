@@ -11,5 +11,5 @@ import java.util.UUID;
 @AllArgsConstructor
 public class CreateOrderResponseDto {
 
-    private UUID id;
+    private UUID orderId;
 }

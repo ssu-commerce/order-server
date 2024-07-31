@@ -64,7 +64,7 @@ public interface OrderTestDataSupplier {
 
     static Order getOrder() {
         return Order.builder()
-                .id(TEST_VAL_ORDER_ID)
+                .orderId(TEST_VAL_ORDER_ID)
                 .orderedAt(LocalDateTime.now())
                 .userId(TEST_VAL_USER_ID)
                 .build();
@@ -112,7 +112,7 @@ public interface OrderTestDataSupplier {
         return new PageImpl<>(
                 Arrays.asList(
                         Order.builder()
-                                .id(TEST_VAL_ORDER_ID)
+                                .orderId(TEST_VAL_ORDER_ID)
                                 .userId(TEST_VAL_USER_ID)
                                 .orderedAt(TEST_VAL_ORDERED_AT)
                                 .build()
@@ -122,7 +122,7 @@ public interface OrderTestDataSupplier {
 
     static OrderItem getOrderItem() {
         return OrderItem.builder()
-                .id(TEST_VAL_ORDER_ITEM_ID)
+                .orderItemId(TEST_VAL_ORDER_ITEM_ID)
                 .orderState(OrderState.REQUESTED)
                 .bookId(TEST_VAL_BOOK_ID)
                 .orderId(TEST_VAL_ORDER_ID)

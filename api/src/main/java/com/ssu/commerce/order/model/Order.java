@@ -22,8 +22,8 @@ public class Order {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "id", columnDefinition = "BINARY(16)")
-    private UUID id;
+    @Column(name = "order_id", columnDefinition = "char(36)")
+    private UUID orderId;
 
     @Column(name = "ordered_at")
     private LocalDateTime orderedAt;
