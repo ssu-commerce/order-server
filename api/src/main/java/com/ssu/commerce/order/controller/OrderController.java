@@ -25,6 +25,11 @@ import java.util.UUID;
 public class OrderController {
     private final OrderService orderService;
 
+    @GetMapping("/test")
+    public String test() {
+        return "ok";
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
     public CreateOrderResponseDto createOrder(
