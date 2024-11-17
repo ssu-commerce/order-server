@@ -1,7 +1,7 @@
 package com.ssu.commerce.order.dto.param;
 
+import com.ssu.commerce.grpc.BookState;
 import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
-import com.ssu.commerce.order.grpc.BookState;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

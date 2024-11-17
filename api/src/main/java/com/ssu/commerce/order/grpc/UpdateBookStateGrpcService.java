@@ -1,5 +1,8 @@
 package com.ssu.commerce.order.grpc;
 
+import com.google.protobuf.Empty;
+import com.ssu.commerce.grpc.UpdateBookStateGrpc;
+import com.ssu.commerce.grpc.UpdateBookStateRequest;
 import com.ssu.commerce.order.dto.param.UpdateBookStateParamDto;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
@@ -11,9 +14,9 @@ public class UpdateBookStateGrpcService {
     @GrpcClient("updateBookState")
     private UpdateBookStateGrpc.UpdateBookStateBlockingStub updateBookStateBlockingStub;
 
-    public UpdateBookStateResponse sendMessageToUpdateBookState(UpdateBookStateParamDto paramDto) {
+    public Empty sendMessageToUpdateBookState(UpdateBookStateParamDto paramDto) {
 
-        return updateBookStateBlockingStub.updateBookState(
+        updateBookStateBlockingStub.updateBookState(
                 UpdateBookStateRequest.newBuilder()
                         .setToken(paramDto.getAccessToken())
                         .setBookState(paramDto.getBookState())
@@ -23,5 +26,6 @@ public class UpdateBookStateGrpcService {
                                 ).collect(Collectors.toList()))
                         .build()
         );
+        return null;
     }
 }

@@ -2,6 +2,7 @@ package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
+import com.ssu.commerce.grpc.BookState;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
@@ -14,7 +15,6 @@ import com.ssu.commerce.order.dto.response.PaymentResponse;
 import com.ssu.commerce.order.exception.OrderErrorCode;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.feign.PaymentFeignClient;
-import com.ssu.commerce.order.grpc.BookState;
 import com.ssu.commerce.order.grpc.RentalBookGrpcService;
 import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
@@ -100,7 +100,7 @@ public class OrderService {
                     UpdateBookStateParamDto.builder()
                             .createOrderInfoDto(requestDto.getOrderInfo())
                             .accessToken(principal.getAccessToken())
-                            .bookState(BookState.REGISTERED)
+                            .bookState(BookState.DISSHAREABLE)
                             .build());
 
             throw new OrderFailException(OrderErrorCode.PAYMENT, "Payment error : " + e.getMessage());
@@ -131,7 +131,7 @@ public class OrderService {
                     UpdateBookStateParamDto.builder()
                             .createOrderInfoDto(saveOrderParamDto.getRequestDto())
                             .accessToken(saveOrderParamDto.getAccessToken())
-                            .bookState(BookState.REGISTERED)
+                            .bookState(BookState.DISSHAREABLE)
                             .build());
 
             throw new OrderFailException(OrderErrorCode.SAVE, "Order save error : " + e.getMessage());

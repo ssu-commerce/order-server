@@ -2,6 +2,7 @@ package com.ssu.commerce.order.supplier;
 
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.core.security.user.UserRole;
+import com.ssu.commerce.grpc.BookState;
 import com.ssu.commerce.order.constant.OrderState;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
@@ -10,7 +11,6 @@ import com.ssu.commerce.order.dto.request.CreateOrderInfoDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.OrderListParamDto;
 import com.ssu.commerce.order.dto.response.PaymentResponse;
-import com.ssu.commerce.order.grpc.BookState;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
 import org.springframework.data.domain.Page;
@@ -150,7 +150,7 @@ public interface OrderTestDataSupplier {
         return UpdateBookStateParamDto.builder()
                 .createOrderInfoDto(dto)
                 .accessToken(TEST_VAL_ACCESS_TOKEN)
-                .bookState(BookState.LOAN_PROCESSING)
+                .bookState(BookState.DISSHAREABLE)
                 .build();
     }
 
@@ -158,7 +158,7 @@ public interface OrderTestDataSupplier {
         return UpdateBookStateParamDto.builder()
                 .createOrderInfoDto(dto)
                 .accessToken(TEST_VAL_ACCESS_TOKEN)
-                .bookState(BookState.LOAN_PROCESSING)
+                .bookState(BookState.DISSHAREABLE)
                 .build();
     }
 }

@@ -11,7 +11,6 @@ import com.ssu.commerce.order.dto.response.PaymentResponse;
 import com.ssu.commerce.order.exception.OrderErrorCode;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.feign.PaymentFeignClient;
-import com.ssu.commerce.order.grpc.BookState;
 import com.ssu.commerce.order.grpc.RentalBookGrpcService;
 import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
