@@ -1,7 +1,6 @@
 package com.ssu.commerce.order.controller;
 
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
-import com.ssu.commerce.order.dto.mapper.*;
 import com.ssu.commerce.order.dto.param.GetOrderListParamDto;
 import com.ssu.commerce.order.dto.request.CreateOrderRequestDto;
 import com.ssu.commerce.order.dto.response.*;
@@ -38,12 +37,7 @@ public class OrderController {
     ) {
         log.debug("[createOrder]requestDto={}", requestDto);
 
-        return OrderResponseDtoMapper.INSTANCE.map(
-                orderService.createOrder(
-                        requestDto,
-                        principal
-                )
-        );
+        return new CreateOrderResponseDto(orderService.createOrder(requestDto, principal));
     }
 
     @PutMapping("/{orderItemId}")
@@ -53,7 +47,7 @@ public class OrderController {
     ) {
         log.debug("[updateOrderItem]orderItemId={}", orderItemId);
 
-        return UpdateOrderItemResponseDtoMapper.INSTANCE.map(
+        return new UpdateOrderItemResponseDto(
                 orderService.updateOrderItem(orderItemId)
         );
     }
@@ -70,6 +64,6 @@ public class OrderController {
                         .userId(principal.getUserId())
                         .pageable(pageable)
                         .build()
-        ).map(orderListParamDto -> new OrderResponseDto(orderListParamDto));
+        ).map(OrderResponseDto::new);
     }
 }

@@ -1,9 +1,8 @@
 package com.ssu.commerce.order.controller;
 
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
-import com.ssu.commerce.order.dto.mapper.CartItemParamDtoMapper;
-import com.ssu.commerce.order.dto.mapper.CartItemResponseDtoMapper;
-import com.ssu.commerce.order.dto.mapper.CreateCartItemParamDtoMapper;
+import com.ssu.commerce.order.dto.param.CartItemParamDto;
+import com.ssu.commerce.order.dto.param.CreateCartItemParamDto;
 import com.ssu.commerce.order.dto.request.CreateCartItemRequestDto;
 import com.ssu.commerce.order.dto.response.CreateCartItemResponseDto;
 import com.ssu.commerce.order.dto.response.DeleteCartItemResponseDto;
@@ -13,6 +12,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -34,13 +34,11 @@ public class CartController {
             Pageable pageable
     ) {
         log.debug("getCartItem]SsuCommerceAuthenticatedPrincipal={}", principal);
-
-        return cartService.getCartItem(
-                        CartItemParamDtoMapper.INSTANCE.map(
-                                principal.getUserId()
-                                , pageable
-                        ))
-                .map(CartItemResponseDtoMapper.INSTANCE::map);
+        return new PageImpl<>(
+                cartService.getCartItem(new CartItemParamDto(principal.getUserId(), pageable))
+                        .map(CartItemResponseDto::new)
+                        .toList()
+        );
     }
 
     @PostMapping
@@ -53,7 +51,7 @@ public class CartController {
         return CreateCartItemResponseDto.builder()
                 .cartItemIds(
                         cartService.createCartItem(
-                                CreateCartItemParamDtoMapper.INSTANCE.map(requestDto),
+                                new CreateCartItemParamDto(requestDto),
                                 principal.getUserId()
                         )
                 )

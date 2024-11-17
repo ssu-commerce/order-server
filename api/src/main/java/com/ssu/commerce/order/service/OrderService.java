@@ -15,6 +15,7 @@ import com.ssu.commerce.order.exception.OrderErrorCode;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.feign.PaymentFeignClient;
 import com.ssu.commerce.order.grpc.BookState;
+import com.ssu.commerce.order.grpc.RentalBookGrpcService;
 import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
@@ -40,6 +41,8 @@ public class OrderService {
     private final UpdateBookStateGrpcService updateBookStateGrpcService;
     private final PaymentFeignClient paymentFeignClient;
 
+    private final RentalBookGrpcService rentalBookGrpcService;
+
     @Transactional
     public UUID updateOrderItem(UUID orderItemId) {
         OrderItem orderItem = orderItemRepository.findById(orderItemId)
@@ -53,6 +56,7 @@ public class OrderService {
         return orderItem.getOrderItemId();
     }
 
+    @Transactional
     public Order createOrder(CreateOrderRequestDto requestDto, SsuCommerceAuthenticatedPrincipal principal) {
 
         /*
@@ -62,30 +66,18 @@ public class OrderService {
         List<CreateOrderInfoDto> orderInfoDto = requestDto.getOrderInfo();
         String accessToken = principal.getAccessToken();
 
-        updateBookStateGrpcService.sendMessageToUpdateBookState(
-                UpdateBookStateParamDto.builder()
-                        .createOrderInfoDto(orderInfoDto)
-                        .accessToken(accessToken)
-                        .bookState(BookState.LOAN_PROCESSING)
-                        .build());
+        rentalBookGrpcService.updateBookStateBeforeShare(requestDto.getBookIdInfo(), principal.getAccessToken());
 
         PaymentResponse paymentResponse = requestPayment(requestDto, principal);
 
+        Order order = saveOrder(SaveOrderParamDto.builder()
+                .userId(principal.getUserId())
+                .accessToken(accessToken)
+                .requestDto(orderInfoDto)
+                .paymentId(paymentResponse.getTransactionId())
+                .build());
 
-        Order order = saveOrder(
-                SaveOrderParamDto.builder()
-                        .userId(principal.getUserId())
-                        .accessToken(accessToken)
-                        .requestDto(orderInfoDto)
-                        .paymentId(paymentResponse.getTransactionId())
-                        .build());
-
-        updateBookStateGrpcService.sendMessageToUpdateBookState(
-                UpdateBookStateParamDto.builder()
-                        .createOrderInfoDto(orderInfoDto)
-                        .accessToken(accessToken)
-                        .bookState(BookState.LOAN)
-                        .build());
+        rentalBookGrpcService.updateBookStateAfterShare(requestDto.getBookIdInfo(), principal.getAccessToken());
 
         return order;
     }
@@ -115,7 +107,6 @@ public class OrderService {
         }
     }
 
-    @Transactional
     Order saveOrder(SaveOrderParamDto saveOrderParamDto) {
         try {
             Order order = orderRepository.save(

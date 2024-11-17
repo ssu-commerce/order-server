@@ -1,5 +1,6 @@
 package com.ssu.commerce.order.service;
 
+import com.google.protobuf.Empty;
 import com.ssu.commerce.core.error.NotFoundException;
 import com.ssu.commerce.core.security.user.SsuCommerceAuthenticatedPrincipal;
 import com.ssu.commerce.order.dto.param.SaveOrderParamDto;
@@ -11,6 +12,7 @@ import com.ssu.commerce.order.exception.OrderErrorCode;
 import com.ssu.commerce.order.exception.OrderFailException;
 import com.ssu.commerce.order.feign.PaymentFeignClient;
 import com.ssu.commerce.order.grpc.BookState;
+import com.ssu.commerce.order.grpc.RentalBookGrpcService;
 import com.ssu.commerce.order.grpc.UpdateBookStateGrpcService;
 import com.ssu.commerce.order.model.Order;
 import com.ssu.commerce.order.model.OrderItem;
@@ -35,6 +37,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.times;
@@ -61,6 +64,9 @@ class OrderServiceTest implements OrderTestDataSupplier {
     @Mock
     private PaymentFeignClient paymentFeignClient;
 
+    @Mock
+    private RentalBookGrpcService rentalBookGrpcService;
+
     @Test
     void creteOrder_success() {
         CreateOrderRequestDto requestDto = OrderTestDataSupplier.getCreateOrderRequestDto();
@@ -71,6 +77,9 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
         doReturn(savedOrder).when(orderService).saveOrder(saveOrderParamDto);
         doReturn(paymentResponse).when(orderService).requestPayment(requestDto, principal);
+        doReturn(null).when(rentalBookGrpcService).updateBookStateBeforeShare(requestDto.getBookIdInfo(), principal.getAccessToken());
+        doReturn(null).when(rentalBookGrpcService).updateBookStateAfterShare(requestDto.getBookIdInfo(), principal.getAccessToken());
+
 
         Order resultOrder = orderService.createOrder(requestDto, principal);
 
@@ -85,8 +94,8 @@ class OrderServiceTest implements OrderTestDataSupplier {
         SsuCommerceAuthenticatedPrincipal principal = OrderTestDataSupplier.getSsuCommerceAuthenticatedPrincipal();
         Exception grpcException = new Exception("TEST EXCEPTION");
 
-        when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                OrderTestDataSupplier.getUpdateBookStateLoanProcessingParamDto(requestDto.getOrderInfo())
+        when(rentalBookGrpcService.updateBookStateBeforeShare(
+               requestDto.getBookIdInfo(), principal.getAccessToken()
         )).thenAnswer(invocation -> {
             throw grpcException;
         });
@@ -105,12 +114,10 @@ class OrderServiceTest implements OrderTestDataSupplier {
 
         Exception grpcException = new Exception("TEST EXCEPTION");
 
-        when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                OrderTestDataSupplier.getUpdateBookStateLoanProcessingParamDto(requestDto.getOrderInfo())
-        )).thenAnswer(invocation -> null);
+        when(orderService.requestPayment(requestDto, principal)).thenReturn(OrderTestDataSupplier.getPaymentResponse());
 
-        when(updateBookStateGrpcService.sendMessageToUpdateBookState(
-                OrderTestDataSupplier.getUpdateBookStateLoanParamDto(requestDto.getOrderInfo())
+        when(rentalBookGrpcService.updateBookStateAfterShare(
+                requestDto.getBookIdInfo(), principal.getAccessToken()
         )).thenAnswer(invocation -> {
             throw grpcException;
         });

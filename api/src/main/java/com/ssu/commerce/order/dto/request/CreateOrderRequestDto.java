@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -17,4 +18,8 @@ import java.util.UUID;
 public class CreateOrderRequestDto {
     private UUID receiverId;
     private List<CreateOrderInfoDto> orderInfo;
+
+    public List<String> getBookIdInfo() {
+        return orderInfo.stream().map(info -> info.getBookId().toString()).collect(Collectors.toList());
+    }
 }
