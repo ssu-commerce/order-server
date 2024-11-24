@@ -34,11 +34,9 @@ public class CartController {
             Pageable pageable
     ) {
         log.debug("getCartItem]SsuCommerceAuthenticatedPrincipal={}", principal);
-        return new PageImpl<>(
-                cartService.getCartItem(new CartItemParamDto(principal.getUserId(), pageable))
-                        .map(CartItemResponseDto::new)
-                        .toList()
-        );
+
+        return cartService.getCartItem(new CartItemParamDto(principal.getUserId(), pageable))
+                .map(CartItemResponseDto::new);
     }
 
     @PostMapping

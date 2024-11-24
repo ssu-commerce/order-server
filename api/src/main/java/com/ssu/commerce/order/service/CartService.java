@@ -74,8 +74,7 @@ public class CartService {
                         "ORDER_CART_002"
                 ));
 
-        Page<OrderCartItem> orderCartItems = cartItemRepository.findByOrderCartId(orderCart.getOrderCartId(), paramDto.getPageable());
-
-        return orderCartItems.map(SelectCartItemParamDto::new);
+        return cartItemRepository.findByOrderCartId(orderCart.getOrderCartId(), paramDto.getPageable())
+                .map(orderCartItem -> new SelectCartItemParamDto(paramDto.getUserId(), orderCartItem));
     }
 }

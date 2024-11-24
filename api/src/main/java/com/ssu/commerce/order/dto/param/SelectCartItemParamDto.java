@@ -15,9 +15,11 @@ import java.util.UUID;
 @NoArgsConstructor
 public class SelectCartItemParamDto {
     private UUID bookId;
+    private UUID userId;
     private LocalDateTime addedAt;
 
-    public SelectCartItemParamDto(OrderCartItem orderCartItem) {
+    public SelectCartItemParamDto(UUID userId, OrderCartItem orderCartItem) {
+        this.userId = userId;
         bookId = orderCartItem.getBookId();
         addedAt = orderCartItem.getAddedAt();
     }

@@ -33,7 +33,7 @@ public interface CartTestDataSupplier {
         return new SsuCommerceAuthenticatedPrincipal(
                 TEST_VAL_USER_ID,
                 TEST_VAL_ACCESS_TOKEN,
-                Arrays.asList(
+                List.of(
                         UserRole.ROLE_USER
                 ),
                 "USER_NAME"
@@ -50,6 +50,7 @@ public interface CartTestDataSupplier {
         return new PageImpl<>(
                 Collections.singletonList(
                         SelectCartItemParamDto.builder()
+                                .userId(TEST_VAL_USER_ID)
                                 .bookId(TEST_VAL_BOOK_ID)
                                 .addedAt(LocalDateTime.now())
                                 .build()
