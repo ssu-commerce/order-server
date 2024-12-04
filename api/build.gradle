@@ -56,7 +56,7 @@ dependencies {
 	implementation "com.querydsl:querydsl-core:$queryDSLVersion"
 
 	// for grpc
-	implementation project(":grpc")
+	implementation ("com.ssu.commerce.book:grpc:$grpcVersion")
 
 	// testContainers
 	testImplementation 'org.junit.jupiter:junit-jupiter:5.9.2'

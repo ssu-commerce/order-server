@@ -1,7 +1,6 @@
 package com.ssu.commerce.order.service;
 
 import com.ssu.commerce.core.error.NotFoundException;
-import com.ssu.commerce.order.dto.mapper.SelectOrderCartParamDtoMapper;
 import com.ssu.commerce.order.dto.param.CartItemParamDto;
 import com.ssu.commerce.order.dto.param.CreateCartItemParamDto;
 import com.ssu.commerce.order.dto.param.SelectCartItemParamDto;
@@ -75,10 +74,7 @@ public class CartService {
                         "ORDER_CART_002"
                 ));
 
-        Page<OrderCartItem> orderCartItems = cartItemRepository.findByOrderCartId(orderCart.getOrderCartId(), paramDto.getPageable());
-
-        return orderCartItems.map(
-                SelectOrderCartParamDtoMapper.INSTANCE::map
-        );
+        return cartItemRepository.findByOrderCartId(orderCart.getOrderCartId(), paramDto.getPageable())
+                .map(orderCartItem -> new SelectCartItemParamDto(paramDto.getUserId(), orderCartItem));
     }
 }

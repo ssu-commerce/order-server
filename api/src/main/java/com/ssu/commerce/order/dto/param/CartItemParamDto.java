@@ -11,4 +11,9 @@ import java.util.UUID;
 public class CartItemParamDto {
     private UUID userId;
     private Pageable pageable;
+
+    public CartItemParamDto(UUID userId, Pageable pageable) {
+        this.userId = userId;
+        this.pageable = pageable;
+    }
 }
