@@ -1,4 +1,4 @@
-name: Release
+name: Build And Deploy
 
 on:
   push:
@@ -49,7 +49,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          
+
       - name: Set Current Time
         uses: 1466587594/get-current-time@v1
         id: current-time
@@ -65,3 +65,36 @@ jobs:
           TOKEN: ${{secrets.TOKEN}}
           GITHUB_TOKEN: ${{ secrets.TOKEN }}  # Needed to get PR information, if any
         run: ./gradlew :api:jib
+
+  deploy:
+    name: Deploy
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the target repository
+        uses: actions/checkout@v4
+        with:
+          repository: ssu-commerce/helm-charts
+          token: ${{ secrets.HELM_TOKEN }}
+          path: helm-charts
+
+      - name: Set Current Time
+        uses: 1466587594/get-current-time@v1
+        id: current-time
+        with:
+          format: YYYY.MM
+          utcOffset: "+09:00"
+        if: always()
+
+      - name: Update YAML file
+        run: |
+          yq eval '.order.image.tag = "${{ steps.current-time.outputs.formattedTime }}.${{github.run_number}}"' -i helm-charts/chart/ssu-commerce/values.yaml
+
+      - name: Commit changes
+        run: |
+          cd helm-charts
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add chart/ssu-commerce/values.yaml
+          git commit -m 'Update image tag to ${{ steps.current-time.outputs.formattedTime }}.${{github.run_number}}'
+          git push origin main
